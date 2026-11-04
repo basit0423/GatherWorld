@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Blocked Members · Gather World{% endblock %}
+{% block body_class %}discover-page{% endblock %}
+{% block content %}
+<section class="page-heading"><div><span class="section-kicker">YOUR PRIVACY</span><h1>Blocked members</h1><p>People you block cannot interact with you through Gather World.</p></div><a class="btn btn-secondary" href="{{ url_for('home') }}">Home</a></section>
+<section class="member-grid">{% for r in rows %}<article class="member-card"><div class="member-cover image-slot image-slot--member"></div><img class="member-avatar avatar-img" src="{{ r.avatar_url or url_for('static', filename='images/profile_avatars/' ~ r.avatar_preset) }}" alt="{{ r.display_name }} display picture" loading="lazy decoding="async"<div class="member-info"><strong>{{ r.display_name }}</strong><span>@{{ r.username }}</span><form method="post" action="{{ url_for('toggle_block',username=r.username) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn btn-small" type="submit">Unblock</button></form></div></article>{% else %}<div class="empty-state grid-empty"><h2>No blocked members</h2><p>Members you block will appear here.</p></div>{% endfor %}</section>
+{% endblock %}

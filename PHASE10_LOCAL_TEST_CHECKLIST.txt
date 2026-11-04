@@ -1,0 +1,17 @@
+GATHER WORLD PHASE 10 PREPARATION — LOCAL CHECKLIST
+
+[ ] Make a local project backup and Neon database backup.
+[ ] Install the ZIP contents while preserving .env and .venv.
+[ ] Start Flask and confirm the database migration completes.
+[ ] Open /about, /contact, /privacy, /terms and /affiliate-disclosure.
+[ ] Open /shop and confirm it shows a pre-launch message, not fake product offers.
+[ ] Open /partners and confirm unapproved partners are not shown publicly.
+[ ] Switch Dark to Light theme, reload, then switch back.
+[ ] As admin, open /admin/affiliate-partners.
+[ ] Confirm Daraz and Amazon are listed as Applied with no tracking URLs.
+[ ] Update a test partner's status and notes.
+[ ] Confirm normal members cannot open /admin/affiliate-partners.
+[ ] Only after approval, enter the approved HTTPS tracking link.
+[ ] Confirm approved partner appears publicly on /partners.
+
+Never commit .env or expose API keys, mail passwords, database credentials or tracking dashboard credentials.

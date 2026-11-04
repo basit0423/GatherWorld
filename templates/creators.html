@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Creators · Gather World{% endblock %}
+{% block content %}
+<section class="phase79-wrap"><header class="panel-card phase79-hero"><span class="section-kicker">PHASE 8 · CREATOR ECOSYSTEM</span><h1>Discover creators.</h1><p>Meet people sharing knowledge, art, ideas and original work.</p><div class="heading-actions"><a class="btn" href="{{ url_for('creator_settings') }}">Build your creator profile</a></div></header>
+<form class="explore-search-form" action="{{ url_for('creators_directory') }}" method="get" style="margin-top:16px"><span>⌕</span><input type="search" name="q" value="{{ q }}" placeholder="Search creators, categories or skills"><button class="btn" type="submit">Search</button></form>
+<div class="creator-grid">{% for creator in creators %}<a class="creator-card" href="{{ url_for('creator_public',username=creator.username) }}"><div class="creator-card-head"><img src="{{ creator.avatar_url or url_for('static',filename='images/profile_avatars/' ~ creator.avatar_preset) }}" alt="{{ creator.display_name }} avatar" loading="lazy" decoding="async"<span><h3>{{ creator.display_name }}</h3><small>@{{ creator.username }} · {{ creator.category }}</small></span></div>{% if creator.headline %}<strong>{{ creator.headline }}</strong>{% endif %}<p>{{ creator.about or creator.bio or 'Gather World creator' }}</p><small>{{ creator.followers }} followers</small></a>{% else %}<div class="panel-card explore-empty">No public creator profiles match your search yet.</div>{% endfor %}</div></section>
+{% endblock %}

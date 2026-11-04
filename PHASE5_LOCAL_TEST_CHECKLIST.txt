@@ -1,0 +1,12 @@
+PHASE 5 LOCAL TEST CHECKLIST
+[ ] Open /messages while logged in.
+[ ] Start a one-to-one conversation using another registered username.
+[ ] Send a text message and confirm it displays after redirect.
+[ ] Log in as the recipient and confirm unread message count appears.
+[ ] Open the conversation and confirm unread count clears.
+[ ] Start a group conversation with two or more other users.
+[ ] Confirm only group members can view the thread.
+[ ] Leave a group and confirm it disappears from the leaver's inbox.
+[ ] Block a direct-message participant and confirm new sending is prevented.
+[ ] Try sending more than the configured rate limit and confirm a friendly limit message.
+[ ] Test on desktop and mobile widths.

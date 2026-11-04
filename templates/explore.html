@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Explore — Gather World{% endblock %}
+{% block content %}
+<section class="explore-hero panel-card">
+  <span class="section-kicker">THE WORLD IS OPEN</span>
+  <h1>Explore Gather World.</h1>
+  <p>Find people, ideas, posts and communities worth discovering.</p>
+  <form class="explore-search-form" action="{{ url_for('search') }}" method="get">
+    <span>⌕</span><input type="search" name="q" minlength="2" maxlength="80" placeholder="Search people, posts, communities or topics…" required>
+    <button type="submit">Search</button>
+  </form>
+</section>
+
+<section class="explore-section">
+  <div class="explore-section-heading"><div><span class="section-kicker">WHAT PEOPLE ARE TALKING ABOUT</span><h2>Trending topics</h2></div><span class="explore-hint">Based on public post hashtags from the last 30 days</span></div>
+  <div class="topic-chip-grid">
+    {% for topic in topics %}<a class="topic-chip" href="{{ url_for('topic_detail',slug=topic.slug) }}"><span>#{{ topic.slug }}</span><small>{{ topic.uses }} posts</small></a>{% else %}<div class="panel-card explore-empty">No trending topics yet. Add hashtags such as #gaming or #photography to a post.</div>{% endfor %}
+  </div>
+</section>
+
+<section class="explore-section">
+  <div class="explore-section-heading"><div><span class="section-kicker">MEET MORE PEOPLE</span><h2>Suggested members</h2></div><a class="quiet-action" href="{{ url_for('members') }}">View all people ↗</a></div>
+  <div class="explore-people-grid">
+    {% for person in people %}<a class="explore-person-card" href="{{ url_for('public_profile',username=person.username) }}">
+      <img src="{{ person.avatar_url or url_for('static',filename='images/profile_avatars/' ~ person.avatar_preset) }}" alt="{{ person.display_name }} display picture" loading="lazy" decoding="async"
+      <strong>{{ person.display_name }}</strong><small>@{{ person.username }}</small>
+      {% if person.bio %}<p>{{ person.bio[:90] }}</p>{% endif %}<span>{{ person.followers }} followers</span>
+    </a>{% else %}<div class="panel-card explore-empty">There are no member suggestions right now.</div>{% endfor %}
+  </div>
+</section>
+
+<section class="explore-section">
+  <div class="explore-section-heading"><div><span class="section-kicker">FIND YOUR PEOPLE</span><h2>Popular communities</h2></div><a class="quiet-action" href="{{ url_for('community_list') }}">All communities ↗</a></div>
+  <div class="explore-community-grid">
+    {% for community in communities %}<a class="explore-community-card" href="{{ url_for('community_view',slug=community.slug) }}"><span class="explore-community-mark">{{ community.name[:1]|upper }}</span><div><strong>{{ community.name }}</strong><small>{{ community.category }} · {{ community.members }} members</small><p>{{ community.description[:120] }}</p></div></a>{% else %}<div class="panel-card explore-empty">Discoverable communities will appear here.</div>{% endfor %}
+  </div>
+</section>
+
+<section class="explore-section">
+  <div class="explore-section-heading"><div><span class="section-kicker">FRESH FROM THE COMMUNITY</span><h2>Posts to discover</h2></div><a class="quiet-action" href="{{ url_for('feed') }}">Open feed ↗</a></div>
+  <div class="explore-post-grid">
+    {% for post in posts %}<article class="explore-post-card">
+      <a class="explore-post-author" href="{{ url_for('public_profile',username=post.username) }}"><img src="{{ post.avatar_url or url_for('static',filename='images/profile_avatars/' ~ post.avatar_preset) }}" alt="" loading="lazy" decoding="async"<span><strong>{{ post.display_name }}</strong><small>@{{ post.username }}</small></span></a>
+      {% if post.body %}<p>{{ post.body[:260] }}</p>{% endif %}
+      {% if post.media_url %}{% if post.media_type=='image' %}<img class="explore-post-media" src="{{ post.media_url }}" alt="Image in post by {{ post.display_name }}" loading="lazy" decoding="async"{% elif post.media_type=='video' %}<video class="explore-post-media" src="{{ post.media_url }}" controls playsinline preload="metadata"></video>{% endif %}{% endif %}
+      <div class="explore-post-meta"><span>{{ post.likes }} likes</span><span>{{ post.comments }} comments</span><a href="{{ url_for('post_detail',pid=post.id) }}">Open post ↗</a></div>
+    </article>{% else %}<div class="panel-card explore-empty">New public posts will appear here.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

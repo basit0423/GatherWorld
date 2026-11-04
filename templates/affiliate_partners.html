@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Affiliate Partners · Gather World{% endblock %}
+{% block content %}
+<section class="public-info-wrap"><header class="public-info-hero"><span class="section-kicker">GATHER WORLD PARTNERS</span><h1>Partners</h1><p>We will list participating retailers here after a programme application is approved and an authorized tracking link is configured.</p></header>
+{% if partners %}<div class="partner-public-grid">{% for partner in partners %}<article class="public-info-card partner-public-card"><span class="partner-approved">Approved partner</span><h2>{{ partner.name }}</h2><p>Explore products and offers from this partner.</p><a class="btn" href="{{ partner.affiliate_url }}" target="_blank" rel="sponsored nofollow noopener">Visit partner ↗</a></article>{% endfor %}</div>{% else %}<section class="public-info-card"><h2>Partner directory is being prepared</h2><p>There are no approved affiliate partners with active tracking links published yet. Please check back later.</p><a href="{{ url_for('starter',page='affiliate-disclosure') }}">Read our affiliate disclosure</a></section>{% endif %}</section>
+{% endblock %}

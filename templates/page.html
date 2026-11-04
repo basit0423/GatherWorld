@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block body_class %}content-page{% endblock %}
+{% block title %}{{ title }} · Gather World{% endblock %}
+{% block content %}<section class="page-heading"><div><span class="section-kicker">GATHER WORLD</span><h1>{{ title }}</h1><p>One world. One platform. Endless possibilities.</p></div></section><section class="panel-card future-page"><div class="image-slot image-slot--feature" aria-hidden="true"></div><h2>{{ title }} is part of the Gather World roadmap.</h2><p>This page foundation is ready. Its full features and content will be introduced in a future phase.</p><a class="btn" href="{{ url_for('home') }}">Return to Home</a></section>{% endblock %}

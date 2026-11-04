@@ -1,0 +1,12 @@
+PHASE 6 LOCAL TEST CHECKLIST
+[ ] Open /explore while logged out and logged in.
+[ ] Confirm trending hashtags appear when recent posts include #tags.
+[ ] Search for a member by username.
+[ ] Search for a phrase in a public post.
+[ ] Search for a public community by name.
+[ ] Confirm a private community is not shown to non-members.
+[ ] Confirm blocked users and their posts are not shown in results.
+[ ] Open a topic page such as /topics/gaming.
+[ ] Test empty and no-results searches.
+[ ] Test long and unusual search terms.
+[ ] Check desktop and mobile layouts.

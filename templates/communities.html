@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Discover Communities · Gather World{% endblock %}
+{% block content %}
+<section class="community-hero">
+  <div><span class="tag">FIND YOUR PEOPLE</span><h1>Communities</h1><p>Join conversations around the things you care about, or create a space of your own.</p></div>
+  {% if current_user %}<a class="btn" href="{{ url_for('community_create') }}">＋ Create community</a>{% else %}<a class="btn" href="{{ url_for('login') }}">Log in to create</a>{% endif %}
+</section>
+<section class="community-search-panel">
+  <form method="get" action="{{ url_for('community_list') }}" class="community-search-form">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search communities…" aria-label="Search communities">
+    <select name="category" aria-label="Filter by category"><option value="">All categories</option>{% for item in categories %}<option value="{{ item }}" {% if selected_category==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+    <button class="btn" type="submit">Search</button>
+  </form>
+</section>
+<div class="community-grid">
+{% for community in communities %}
+  <article class="community-card">
+    <div class="community-card-cover community-cover-{{ loop.index0 % 6 }}"><span class="community-mark">{{ community.name[:1]|upper }}</span><span class="community-visibility">{{ 'Private' if community.visibility=='private' else 'Public' }}</span></div>
+    <div class="community-card-body">
+      <div class="community-card-meta"><span>{{ community.category }}</span><span>{{ community.member_count }} members</span></div>
+      <h2><a href="{{ url_for('community_view',slug=community.slug) }}">{{ community.name }}</a></h2>
+      <p>{{ community.description or 'A place for people to connect and share.' }}</p>
+      <div class="community-card-footer"><a class="btn btn-secondary" href="{{ url_for('community_view',slug=community.slug) }}">Open community ↗</a>{% if community.joined %}<span class="member-pill">✓ Joined</span>{% endif %}</div>
+    </div>
+  </article>
+{% else %}
+  <div class="panel community-empty"><span class="community-empty-icon">✦</span><h2>No communities found</h2><p>Try another search, or create the first community in this category.</p>{% if current_user %}<a class="btn" href="{{ url_for('community_create') }}">Create a community</a>{% endif %}</div>
+{% endfor %}
+</div>
+{% endblock %}

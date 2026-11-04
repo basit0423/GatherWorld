@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Gather Shopping · Coming Soon{% endblock %}
+{% block content %}
+<section class="public-info-wrap"><header class="shop-prelaunch-hero"><span class="section-kicker">PHASE 10 · SHOPPING DISCOVERY</span><h1>Discover products.<br>Shop with confidence.</h1><p>Gather Shopping is being prepared. We are setting up approved retailer partnerships before publishing product recommendations.</p><div class="shop-prelaunch-actions"><a class="btn" href="{{ url_for('affiliate_partners_public') }}">View partners</a><a class="btn btn-secondary" href="{{ url_for('starter',page='affiliate-disclosure') }}">Affiliate disclosure</a></div></header>
+<section class="public-info-card"><h2>What is coming</h2><div class="shop-feature-grid"><article><strong>Product discovery</strong><p>Browse useful products across selected categories.</p></article><article><strong>Trusted retailers</strong><p>Visit partner stores for current pricing and checkout.</p></article><article><strong>Clear disclosures</strong><p>Know when a link may earn Gather World a commission.</p></article></div><p class="muted">No products are currently offered for purchase through Gather World. Purchases, when available, will be completed on the retailer's own website.</p></section></section>
+{% endblock %}

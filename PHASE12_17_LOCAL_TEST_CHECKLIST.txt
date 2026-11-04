@@ -1,0 +1,60 @@
+GATHER WORLD — PHASES 12–17 LOCAL TEST CHECKLIST
+================================================
+Before testing, back up E:\GatherWorld and Neon. Keep .env and .venv private.
+
+GENERAL
+[ ] Start Flask with python app.py.
+[ ] Confirm existing Home, Feed, Moments, Communities, Messages, AI and Shop work.
+[ ] Open all six directories using the menu and footer.
+[ ] Test both Light and Dark themes.
+[ ] Test desktop and mobile widths.
+[ ] Confirm the menu and Home navigation remain available.
+
+PHASE 12 — SERVICES
+[ ] Open /services.
+[ ] Create a service listing while signed in.
+[ ] Search and filter the listing.
+[ ] Open its detail page.
+[ ] Sign in as a second account and send an inquiry.
+[ ] Return as the provider and open My Listings > Inquiries.
+[ ] Edit the listing, then hide and restore it.
+
+PHASE 13 — FOOD & LOCAL
+[ ] Open /food.
+[ ] Create a restaurant, cafe or grocery listing.
+[ ] Add an HTTPS menu / official ordering link.
+[ ] Open the detail page and confirm it links to the provider.
+
+PHASE 14 — TRAVEL
+[ ] Open /travel.
+[ ] Create a destination, accommodation or activity listing.
+[ ] Add an HTTPS booking / information link.
+[ ] Open the detail page and confirm the external link works.
+
+PHASE 15 — EDUCATION
+[ ] Open /learn.
+[ ] Create a course or tutorial listing.
+[ ] Add an HTTPS official resource link.
+[ ] Search by category and open the detail page.
+
+PHASE 16 — CAREERS
+[ ] Open /careers.
+[ ] Create a test job listing.
+[ ] Add an HTTPS external application page.
+[ ] Open the job detail and test the external apply link.
+
+PHASE 17 — EVENTS
+[ ] Open /events.
+[ ] Create an event with start date/time.
+[ ] Open the event as a second user.
+[ ] RSVP Going and confirm the count changes.
+[ ] Change to Interested and remove the RSVP.
+
+ADMIN / MODERATION
+[ ] Open /admin/directory-listings as an admin.
+[ ] Hide a test listing.
+[ ] Confirm it no longer appears publicly.
+[ ] Restore it and confirm it appears again.
+
+Do not deploy until these tests pass and legal/business listings have been
+reviewed. All new listings are community-submitted and unverified by default.

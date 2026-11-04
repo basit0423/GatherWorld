@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}
+{% block body_class %}discover-page{% endblock %}Discover Members · Gather World{% endblock %}
+{% block content %}
+<section class="page-heading"><div><span class="section-kicker">FIND YOUR PEOPLE</span><h1>Discover members</h1><p>Meet people, explore profiles and find your next conversation.</p></div></section>
+<form class="search-bar" method="get" action="{{ url_for('members') }}"><input name="q" value="{{ q }}" placeholder="Search by name or username" aria-label="Search members"><button class="btn" type="submit">Search</button></form>
+<section class="member-grid">
+{% for r in rows %}
+<a class="member-card" href="{{ url_for('public_profile',username=r.username) }}"><div class="member-cover image-slot image-slot--member"></div><img class="member-avatar avatar-img" src="{{ r.avatar_url or url_for('static', filename='images/profile_avatars/' ~ r.avatar_preset) }}" alt="{{ r.display_name }} display picture" loading="lazy" decoding="async"<div class="member-info"><strong>{{ r.display_name }}</strong><span>@{{ r.username }}</span><p>{{ r.bio or 'A member of the Gather World community.' }}</p><span class="member-link">View profile →</span></div></a>
+{% else %}<div class="empty-state grid-empty"><h2>No members found</h2><p>Try another name or username.</p></div>{% endfor %}
+</section>
+{% endblock %}

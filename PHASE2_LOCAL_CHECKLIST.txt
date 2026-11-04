@@ -1,0 +1,20 @@
+GATHER WORLD — PHASE 2 LOCAL CHECKLIST
+
+[ ] Back up E:\GatherWorld
+[ ] Extract this ZIP to a temporary folder
+[ ] Copy files into E:\GatherWorld (keep .env and .venv)
+[ ] Add ADMIN_USERNAMES=your_existing_username to the private .env
+[ ] Restart Flask so the new schema migration runs
+[ ] Confirm the normal member account cannot open /admin
+[ ] Confirm the configured administrator can open /admin
+[ ] Test CSRF-protected forms: login, logout, post, like, comment, profile edit
+[ ] Test report post / report member
+[ ] Test dismiss report from admin dashboard
+[ ] With a disposable test account, test suspend and restore
+[ ] Test block and unblock
+[ ] Re-test registration, OTP, forgot password and reset password
+[ ] Check CMD output for errors
+
+Do not test suspension against your main administrator account.
+Do not share .env, database URLs, SMTP passwords or Cloudinary secrets.
+The local app uses your existing Neon database; back it up before applying schema changes.

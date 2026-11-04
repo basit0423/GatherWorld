@@ -1,0 +1,32 @@
+GATHER WORLD PHASES 7–9 LOCAL TEST CHECKLIST
+
+Before testing: back up E:\GatherWorld and create a Neon backup. Keep .env and .venv out of ZIP/Git.
+
+PHASE 7 — GATHER AI
+[ ] Add GEMINI_API_KEY and GEMINI_MODEL=gemini-3.8-flash to private .env.
+[ ] Restart Flask, open /ai, create a conversation and send a harmless test prompt.
+[ ] Confirm response appears and conversation remains after refresh.
+[ ] Create a second account and confirm it cannot open the first account's conversation URL.
+[ ] Delete a conversation and confirm its messages are removed.
+[ ] Confirm missing/invalid API key shows a friendly error and does not reveal the key.
+[ ] Check hourly AI request throttling.
+
+PHASE 8 — CREATOR & BUSINESS
+[ ] Create a creator profile at /creator/settings; view /creator/dashboard and /creators.
+[ ] Open /creator/<username> while logged out and logged in.
+[ ] Create a business page at /businesses/create; confirm it says Unverified.
+[ ] Edit the page as owner; confirm another member cannot edit it.
+[ ] Follow/unfollow a public business.
+[ ] Make a business private and confirm anonymous/non-owner visitors receive 404.
+
+PHASE 9 — READINESS
+[ ] Open /admin/system as configured admin; confirm non-admin gets 403.
+[ ] Confirm readiness checks do not display secret values.
+[ ] Keep APP_ENV=development and COOKIE_SECURE=0 for local HTTP.
+[ ] Do not set production mode locally without a strong private FLASK_SECRET_KEY.
+[ ] Test static images/CSS still load and private dynamic pages are not browser-cached.
+[ ] Restore a Neon backup to a separate test database at least once before deployment.
+[ ] Complete desktop and mobile tests before any deployment.
+
+LIMITS
+Gemini API requests, Cloudinary uploads, Zoho email, Neon queries and browser behavior require local environment testing. This package does not deploy to GitHub/Vercel and is not a production security certification.

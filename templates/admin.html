@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Administration · Gather World{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block content %}
+<section class="page-heading admin-heading"><div><span class="section-kicker">GATHER WORLD CONTROL ROOM</span><h1>Administration</h1><p>Review reports, protect the community and manage accounts.</p></div><a class="btn btn-secondary" href="{{ url_for('home') }}">Home</a></section>
+<section class="admin-stats-grid">
+  <article class="admin-stat"><span>Members</span><strong>{{ stats.users }}</strong></article>
+  <article class="admin-stat"><span>Suspended</span><strong>{{ stats.suspended }}</strong></article>
+  <article class="admin-stat"><span>Posts</span><strong>{{ stats.posts }}</strong></article>
+  <article class="admin-stat"><span>Open reports</span><strong>{{ stats.open_reports }}</strong></article>
+</section>
+<section class="panel-card admin-section"><div class="section-heading"><div><span class="section-kicker">SYSTEM</span><h2>Production readiness</h2></div><a class="btn btn-secondary" href="{{ url_for('admin_system_readiness') }}">Open system checks</a></div><p class="muted">Review configuration and deployment readiness without exposing private credentials.</p></section>
+<section class="panel-card admin-section"><div class="section-heading"><div><span class="section-kicker">PHASE 10 · COMMERCE</span><h2>Affiliate partnerships</h2></div><a class="btn btn-secondary" href="{{ url_for('admin_affiliate_partners') }}">Open partner tracker</a></div><p class="muted">Track applications privately. Add public referral links only after a programme has approved the application.</p></section>
+<section class="panel-card admin-section"><div class="section-heading"><div><span class="section-kicker">SAFETY QUEUE</span><h2>Open reports</h2></div></div>
+{% for r in reports %}
+<article class="admin-report"><div class="admin-report-main"><strong>Report #{{ r.id }} · {{ r.content_type|title }} #{{ r.content_id }}</strong><span class="author-handle">{{ r.reason|replace('_',' ')|title }} · by @{{ r.reporter_username }} · {{ r.created_at.strftime('%b %d, %Y %H:%M') if r.created_at else '' }}</span>{% if r.details %}<p>{{ r.details }}</p>{% endif %}</div>
+<form method="post" action="{{ url_for('resolve_report',report_id=r.id) }}" class="admin-action-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input name="note" maxlength="500" placeholder="Moderator note (optional)" aria-label="Moderator note">{% if r.content_type=='post' %}<button class="btn btn-danger" name="action" value="remove_post" type="submit">Remove post</button>{% endif %}<button class="btn btn-secondary" name="action" value="suspend_user" type="submit">Suspend account</button><button class="quiet-action" name="action" value="dismiss" type="submit">Dismiss</button></form></article>
+{% else %}<p class="muted">No open reports. The queue is clear.</p>{% endfor %}
+</section>
+<section class="panel-card admin-section"><div class="section-heading"><div><span class="section-kicker">ACCOUNT MANAGEMENT</span><h2>Recent members</h2></div></div>
+<div class="admin-user-list"><div class="admin-user-row admin-user-header"><span>Member</span><span>Status</span><span>Action</span></div>
+{% for u in users %}<div class="admin-user-row"><div><strong>{{ u.display_name }}</strong><span class="author-handle">@{{ u.username }} · {{ u.email }}</span></div><span class="status-pill {{ 'status-suspended' if u.is_suspended else 'status-active' }}">{{ 'Suspended' if u.is_suspended else ('Verified' if u.is_verified else 'Unverified') }}</span>
+{% if not (u.username|lower in admin_usernames or u.email|lower in admin_emails) %}<form method="post" action="{{ url_for('admin_user_status',user_id=u.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">{% if u.is_suspended %}<button class="btn btn-small" name="action" value="restore" type="submit">Restore</button>{% else %}<input type="hidden" name="note" value="Suspended through admin dashboard."><button class="btn btn-small btn-danger" name="action" value="suspend" type="submit">Suspend</button>{% endif %}</form>{% else %}<span class="muted">Admin</span>{% endif %}</div>{% endfor %}
+</div></section>
+
+<section class="panel-card admin-section"><div class="section-heading"><div><span class="section-kicker">PHASE 11 · SHOPPING TOOLS</span><h2>Product catalogue</h2></div><a class="btn btn-secondary" href="{{ url_for('admin_shop_products') }}">Manage shop products</a></div><p class="muted">Add products as drafts while partner applications are being reviewed. Publish only after the retailer approves Gather World and provides a product-specific tracking link.</p></section>
+{% endblock %}

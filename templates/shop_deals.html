@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Deals · Gather World{% endblock %}
+{% block content %}
+<section class="shop11-wrap"><header class="shop11-page-heading"><span class="section-kicker">CURATED OFFERS</span><h1>Deals & offers</h1><p>Offers appear only when a product has a verified original price higher than its listed partner price.</p><a class="btn btn-secondary" href="{{ url_for('shop_home') }}">All products</a></header>{% if products %}<div class="shop11-grid">{% for product in products %}{% include "shop_product_card.html" %}{% endfor %}</div>{% else %}<section class="shop11-empty"><div class="shop11-empty-icon">✦</div><h2>No confirmed deals yet</h2><p>When approved retailer products have valid offer pricing, they'll appear here. We won't invent discounts.</p></section>{% endif %}</section>
+{% endblock %}

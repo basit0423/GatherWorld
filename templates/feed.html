@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Community Feed · Gather World{% endblock %}
+{% block body_class %}feed-page{% endblock %}
+{% block content %}
+<section class="page-heading phase3-heading"><div><span class="section-kicker">YOUR WORLD, YOUR COMMUNITY</span><h1>Community feed</h1><p>Share a thought, a photo or a video. Find something worth saving.</p></div><a class="btn btn-secondary" href="{{ url_for('members') }}">Discover people ↗</a></section>
+{% if current_user %}
+<section class="composer panel-card phase3-composer" id="post-composer">
+  <div class="composer-heading"><img class="avatar-img" src="{{ current_user.avatar_url or url_for('static', filename='images/profile_avatars/' ~ current_user.avatar_preset) }}" alt="Your display picture" loading="lazy decoding="async"<div><strong>What's happening?</strong><small>Share a moment with Gather World.</small></div></div>
+  <form method="post" action="{{ url_for('create_post') }}" class="form-stack post-upload-form" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="return_to" value="feed">
+    <textarea name="body" maxlength="2000" placeholder="Write something worth sharing…" aria-label="Write a post"></textarea>
+    <div class="post-upload-tools" aria-label="Add media to your post">
+      <label class="post-upload-choice photo-choice">
+        <span class="upload-choice-icon">▧</span><span><strong>Upload Photo</strong><small>JPG, PNG, WEBP · up to 10 MB</small></span>
+        <input type="file" name="media_file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-post-media="image">
+      </label>
+      <label class="post-upload-choice video-choice">
+        <span class="upload-choice-icon">▶</span><span><strong>Upload Video</strong><small>MP4, MOV, WEBM · up to 32 MB</small></span>
+        <input type="file" name="media_file" accept=".mp4,.m4v,.mov,.webm,video/mp4,video/quicktime,video/webm" data-post-media="video">
+      </label>
+    </div>
+    <div class="post-upload-preview" id="post-media-preview" hidden>
+      <img id="post-photo-preview" alt="Selected photo preview" hidden loading="lazy decoding="async"
+      <video id="post-video-preview" controls playsinline muted hidden></video>
+      <div class="post-upload-preview-meta"><strong id="post-file-name"></strong><button class="text-button" type="button" id="clear-post-media">Remove</button></div>
+    </div>
+    <details class="external-media-option">
+      <summary>Or use an existing media URL</summary>
+      <div class="composer-controls external-media-controls">
+        <input name="media_url" type="url" placeholder="Optional direct HTTPS image or video URL">
+        <select name="media_type" aria-label="External media type"><option value="">Choose type</option><option value="image">Image</option><option value="video">Video</option></select>
+      </div>
+    </details>
+    <div class="post-upload-submit"><p class="form-hint">Your uploaded media is stored securely in your Cloudinary account.</p><button class="btn" type="submit">Share post ↗</button></div>
+  </form>
+</section>
+{% else %}<section class="guest-banner"><div><strong>Join the conversation.</strong><p>Log in to publish, like, save and comment.</p></div><a class="btn" href="{{ url_for('login') }}">Log in</a></section>{% endif %}
+<div class="feed-list phase3-feed-list">
+{% for p in posts %}
+<article class="post-card phase3-post-card">
+  {% if p.is_repost %}<div class="repost-label">↻ {{ p.reposter_display_name }} (@{{ p.reposter_username }}) reposted</div>{% endif %}
+  <div class="post-author"><a class="avatar-img-link" href="{{ url_for('public_profile',username=p.username) }}"><img class="avatar-img" src="{{ p.avatar_url or url_for('static', filename='images/profile_avatars/' ~ p.avatar_preset) }}" alt="{{ p.display_name }} display picture" loading="lazy decoding="async"</a><div><a class="author-name" href="{{ url_for('public_profile',username=p.username) }}">{{ p.display_name }}</a><span class="author-handle">@{{ p.username }} · {{ p.feed_created_at.strftime('%b %d') if p.feed_created_at else '' }}</span></div><a class="post-open-link" href="{{ url_for('post_detail',pid=p.id) }}">•••</a></div>
+  {% if p.body %}<p class="post-copy">{{ p.body }}</p>{% endif %}
+  {% if p.media_url %}{% if p.media_type=="image" %}<img class="post-media" src="{{ p.media_url }}" alt="Image shared by {{ p.display_name }}" loading="lazy" decoding="async"{% elif p.media_type=="video" %}<video class="post-video-inline" src="{{ p.media_url }}" controls playsinline preload="metadata"></video>{% endif %}{% endif %}
+  <div class="post-meta"><span>{{ p.likes }} likes</span><span>{{ p.comments }} comments</span></div>
+  <div class="post-actions phase3-actions">
+    {% if current_user %}<form method="post" action="{{ url_for('like',pid=p.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">{{ "♥ Liked" if p.liked else "♡ Like" }}</button></form>
+    <form method="post" action="{{ url_for('toggle_bookmark',pid=p.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">{{ "▣ Saved" if p.bookmarked else "▢ Save" }}</button></form>
+    {% if current_user.id != p.user_id %}<form method="post" action="{{ url_for('repost',pid=p.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">↻ Repost</button></form>{% endif %}{% endif %}
+    <a class="quiet-action" href="{{ url_for('post_detail',pid=p.id) }}">◯ Comment</a>
+    <button class="quiet-action share-copy" type="button" data-copy-url="{{ url_for('post_detail',pid=p.id,_external=True) }}">↗ Share</button>
+    {% if current_user and current_user.username!=p.username %}<form method="post" action="{{ url_for('report_post',pid=p.id) }}" class="report-inline"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="reason" value="other"><button class="quiet-action" type="submit">Report</button></form>{% endif %}
+    {% if current_user and current_user.username==p.username %}<form method="post" action="{{ url_for('delete_post',pid=p.id) }}" onsubmit="return confirm('Delete this post?')"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action danger-action" type="submit">Delete</button></form>{% endif %}
+  </div>
+</article>
+{% else %}<section class="empty-state"><div class="empty-symbol">✧</div><h2>Your feed is ready for its first story.</h2><p>Share a thought, a photo or a moment with the community.</p>{% if current_user %}<a class="btn" href="#top">Create a post above</a>{% else %}<a class="btn" href="{{ url_for('register') }}">Join Gather World</a>{% endif %}</section>{% endfor %}
+</div>
+{% endblock %}

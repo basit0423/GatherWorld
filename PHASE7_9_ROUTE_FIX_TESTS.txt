@@ -1,0 +1,32 @@
+GATHER WORLD PHASE 7-9 ROUTE FIX — LOCAL TESTS
+
+1. Keep your current E:\GatherWorld\.env and E:\GatherWorld\.venv. They are not included in this ZIP.
+2. Back up your existing E:\GatherWorld folder and make a Neon database backup.
+3. Extract this ZIP into a temporary folder, then copy its contents over E:\GatherWorld.
+4. In the private .env, verify:
+   GEMINI_API_KEY=your private Google AI Studio key
+   GEMINI_MODEL=gemini-3.8-flash
+5. Run:
+   cd /d E:\GatherWorld
+   .venv\Scripts\activate
+   pip install -r requirements.txt
+   python app.py
+6. Test these pages while signed in:
+   /                 Home (must now render; the missing ai_home endpoint is fixed)
+   /ai               Gather AI page (it opens even without an API key; sending prompts requires the key)
+   /creators         Creator directory
+   /creator/settings Creator profile setup
+   /businesses       Business directory
+   /businesses/create Business page creation
+   /admin/system     System Readiness (configured administrator only)
+7. If Gemini gives an authorization/model error, check GEMINI_API_KEY and GEMINI_MODEL privately.
+8. Do not paste API keys, .env contents, database URLs or passwords into chat or GitHub.
+
+This patch adds missing Flask routes and the related database tables for Phase 7 AI chats,
+Phase 8 creator/business pages, and Phase 9 system readiness. Existing Phase 1–6 tables and
+routes are preserved. It uses Google's supported generateContent REST API and stores each
+user's AI conversations in that user's own account scope.
+
+The package passed Python syntax compilation, Jinja parsing for every template, URL endpoint
+reference matching, and ZIP integrity verification. A live Neon/API/browser test remains
+necessary on the user's PC.

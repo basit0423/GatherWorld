@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Wishlist · Gather World{% endblock %}
+{% block content %}
+<section class="shop11-wrap"><header class="shop11-page-heading"><span class="section-kicker">YOUR COLLECTION</span><h1>Wishlist</h1><p>Products you have saved for later.</p><a class="btn btn-secondary" href="{{ url_for('shop_home') }}">Explore products</a></header>
+{% if products %}<div class="shop11-grid">{% for product in products %}{% include "shop_product_card.html" %}{% endfor %}</div>{% else %}<section class="shop11-empty"><div class="shop11-empty-icon">♡</div><h2>Your wishlist is waiting</h2><p>Save products you like and find them here later.</p><a class="btn" href="{{ url_for('shop_home') }}">Browse shopping</a></section>{% endif %}</section>
+{% endblock %}

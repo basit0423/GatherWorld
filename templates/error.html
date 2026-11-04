@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · Gather World{% endblock %}
+{% block body_class %}content-page{% endblock %}
+{% block content %}
+<section class="empty-state error-state"><span class="section-kicker">GATHER WORLD</span><h1>{{ code }} · {{ title }}</h1><p>{{ message }}</p><div class="form-actions"><a class="btn" href="{{ url_for('home') }}">Go Home</a><a class="btn btn-secondary" href="{{ url_for('feed') }}">Open Feed</a></div></section>
+{% endblock %}

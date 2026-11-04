@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Gather World — One world. One platform.{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">A WORLD OF POSSIBILITIES</p>
+  <h1>One world.<br><span>One platform.</span><br>Endless possibilities.</h1>
+  <p class="hero-copy">Discover ideas, connect with communities, learn new things and explore a growing digital world.</p>
+  <a class="primary-button" href="{{ url_for('starter', page='explore') }}">Explore Gather World</a>
+</section>
+<section class="section-heading">
+  <div><p class="eyebrow">MODULE 01</p><h2>Explore the platform</h2></div>
+  <p class="muted">The first 20 page foundations are ready to explore.</p>
+</section>
+<section class="card-grid">
+  {% for slug, label, heading, description in pages %}
+  <a class="page-card" href="{{ url_for('starter', page=slug) }}">
+    <span class="card-kicker">GATHER WORLD</span>
+    <h3>{{ label }}</h3><p>{{ description }}</p>
+    <span class="card-link">Explore →</span>
+  </a>
+  {% endfor %}
+</section>
+{% endblock %}

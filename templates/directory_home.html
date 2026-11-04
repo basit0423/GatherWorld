@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ module.title }} · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page">
+  <header class="gw-directory-hero">
+    <div class="gw-directory-hero-copy">
+      <span class="section-kicker">GATHER WORLD · PHASE {{ {'service':'12','food':'13','travel':'14','education':'15','job':'16','event':'17'}[kind] }}</span>
+      <h1>{{ module.title }}</h1>
+      <p>{{ module.intro }}</p>
+      <div class="gw-directory-hero-actions">
+        {% if current_user %}<a class="btn" href="{{ url_for(module.create_endpoint) }}">＋ {{ module.create_title }}</a>{% else %}<a class="btn" href="{{ url_for('login') }}">Sign in to add a listing</a>{% endif %}
+        {% if current_user %}<a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">My listings</a>{% endif %}
+      </div>
+    </div>
+    <div class="gw-directory-hero-note"><span class="gw-directory-note-icon">✦</span><strong>Discover useful things.</strong><span>Explore listings shared by the Gather World community. Check details with the provider before making decisions.</span></div>
+  </header>
+
+  <section class="gw-directory-toolbar">
+    <form method="get" action="{{ url_for(module.directory_endpoint) }}" class="gw-directory-search">
+      <label class="visually-hidden" for="directory-search">Search {{ module.plural }}</label>
+      <input id="directory-search" type="search" name="q" value="{{ q }}" placeholder="Search {{ module.plural }}…">
+      <select name="category" aria-label="Filter category"><option value="">All categories</option>{% for item in module.categories %}<option value="{{ item }}" {% if selected_category==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+      <button class="btn" type="submit">Search</button>
+    </form>
+  </section>
+
+  <div class="gw-directory-section-heading"><div><span class="section-kicker">COMMUNITY DIRECTORY</span><h2>Explore {{ module.plural }}</h2></div><span class="gw-directory-count">{{ entries|length }} listing{{ '' if entries|length==1 else 's' }}</span></div>
+  {% if entries %}
+  <div class="gw-directory-grid">
+    {% for entry in entries %}
+    <article class="gw-directory-card">
+      <a class="gw-directory-card-media" href="{{ url_for(module.detail_endpoint, slug=entry.slug) }}" aria-label="Open {{ entry.title }}">
+        {% if entry.image_url %}<img src="{{ entry.image_url }}" alt="{{ entry.title }}" loading="lazy" decoding="async">{% else %}<span class="gw-directory-initial">{{ entry.title[:1]|upper }}</span>{% endif %}
+        <span class="gw-directory-kind">{{ module.kind_label }}</span>
+      </a>
+      <div class="gw-directory-card-body">
+        <div class="gw-directory-card-meta"><span>{{ entry.category }}</span>{% if entry.location %}<span>{{ entry.location }}</span>{% endif %}</div>
+        <h3><a href="{{ url_for(module.detail_endpoint, slug=entry.slug) }}">{{ entry.title }}</a></h3>
+        <p>{{ entry.summary or entry.description[:150] }}</p>
+        <div class="gw-directory-card-bottom">
+          {% if entry.price_label %}<strong>{{ entry.price_label }}</strong>{% else %}<span class="gw-muted">Shared by @{{ entry.owner_username }}</span>{% endif %}
+          <a class="gw-text-link" href="{{ url_for(module.detail_endpoint, slug=entry.slug) }}">View details →</a>
+        </div>
+        {% if kind=='event' and entry.event_starts_at %}<div class="gw-directory-event-date">{{ entry.event_starts_at.strftime('%d %b %Y · %H:%M UTC') }} · {{ entry.going_count }} going</div>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <section class="gw-directory-empty"><span class="gw-directory-empty-icon">✧</span><h2>No listings yet</h2><p>Be among the first to share something useful with the Gather World community.</p>{% if current_user %}<a class="btn" href="{{ url_for(module.create_endpoint) }}">Add the first listing</a>{% endif %}</section>
+  {% endif %}
+  <p class="gw-directory-disclaimer">Community listings are submitted by users and are not independently verified by Gather World. Check providers, terms, availability and prices before relying on a listing.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+GATHER WORLD PHASE 4 — LOCAL TEST CHECKLIST
+
+NAVIGATION
+[ ] Three-line menu opens and closes.
+[ ] Escape closes the menu; clicking outside closes it.
+[ ] Discover section contains Feed, Moments, People and Communities.
+[ ] Saved, Notifications, Profile, Edit Profile, Blocked and Admin links resolve.
+[ ] Home is accessible from every page.
+[ ] On homepage and Moments, the same three-line menu works.
+
+COMMUNITIES
+[ ] Open /communities while logged out.
+[ ] Register/log in and create a public community.
+[ ] Confirm creator is listed as Owner.
+[ ] Create a text discussion post.
+[ ] Create a community post with one photo and one video; verify the Cloudinary URL is shown.
+[ ] Join the community from a second test account.
+[ ] Leave from the second test account.
+[ ] Create a private community and request membership from another account.
+[ ] Approve and reject requests as owner/admin/moderator.
+[ ] Update community details, visibility and rules.
+[ ] Promote a member to moderator, then return them to member.
+[ ] Report and delete a discussion post.
+[ ] Create an upcoming event and verify it appears.
+[ ] Confirm a private community hides discussions from non-members.
+
+SAFETY / REGRESSION
+[ ] Existing login, OTP, reset password and admin pages still work.
+[ ] Existing feed, Moments, upload, save, repost and notification pages still work.
+[ ] POST requests without CSRF tokens are rejected.
+[ ] Non-members cannot publish to private communities.
+[ ] Ordinary members cannot open community settings or approve requests.
+[ ] No `.env` or credentials are committed to Git.

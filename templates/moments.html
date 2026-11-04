@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Moments · Gather World{% endblock %}
+{% block body_class %}moments-page{% endblock %}
+{% block main_class %}moments-container{% endblock %}
+{% block content %}
+<div class="moments-experience">
+  <div class="moments-topbar">
+    <a class="moments-brand" href="{{ url_for('home') }}" aria-label="Gather World home"><span>◉</span> Gather<span class="moments-brand-accent">World</span></a>
+    <div class="moments-toplinks">
+      {% if current_user %}<a class="moments-upload-link" href="{{ url_for('feed') }}#post-composer">＋ <span>Upload</span></a>{% else %}<a class="moments-upload-link" href="{{ url_for('login') }}">＋ <span>Upload</span></a>{% endif %}
+      <button class="menu-toggle moments-menu-toggle" type="button" aria-label="Open navigation menu" aria-controls="moments-main-navigation" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button>
+<nav class="main-nav moments-main-nav" id="moments-main-navigation" aria-label="Main navigation" hidden>
+    <form class="menu-search" action="{{ url_for('search') }}" method="get" role="search">
+      <label class="visually-hidden" for="moments-main-navigation-search">Search Gather World</label>
+      <span aria-hidden="true">⌕</span>
+      <input id="moments-main-navigation-search" type="search" name="q" minlength="2" maxlength="80" placeholder="Search people, posts, communities…">
+      <kbd>Ctrl K</kbd>
+    </form>
+
+    <a href="{{ url_for('home') }}" class="nav-link nav-home"><span class="nav-symbol">⌂</span> Home</a>
+
+    <details class="nav-group">
+      <summary><span class="nav-symbol">⌕</span> Explore &amp; discover <span class="nav-chevron">⌄</span></summary>
+      <div class="nav-group-links">
+        <a href="{{ url_for('explore') }}">Explore</a>
+        <a href="{{ url_for('search') }}">Global search</a>
+        <a href="{{ url_for('feed') }}">Community feed</a>
+        <a href="{{ url_for('moments') }}">Photos &amp; Moments</a>
+        <a href="{{ url_for('members') }}">People</a>
+        <a href="{{ url_for('community_list') }}">Communities</a>
+        <a href="{{ url_for('shop_home') }}">Shopping</a>
+        <a href="{{ url_for('shop_deals') }}">Deals &amp; offers</a>
+        <a href="{{ url_for('shop_compare') }}">Compare products</a>
+        <a href="{{ url_for('affiliate_partners_public') }}">Partner directory</a>
+      </div>
+    </details>
+
+    <details class="nav-group">
+      <summary><span class="nav-symbol">✦</span> Create &amp; connect <span class="nav-chevron">⌄</span></summary>
+      <div class="nav-group-links">
+        {% if current_user %}
+          <a href="{{ url_for('feed') }}#post-composer">Create a post</a>
+          <a href="{{ url_for('messages_inbox') }}">Messages{% if unread_messages %}<span class="notification-badge">{{ unread_messages }}</span>{% endif %}</a>
+          <a href="{{ url_for('message_new') }}">New conversation</a>
+          <a href="{{ url_for('notifications') }}">Notifications{% if unread_notifications %}<span class="notification-badge">{{ unread_notifications }}</span>{% endif %}</a>
+          <a href="{{ url_for('ai_home') }}">Gather AI</a>
+          <a href="{{ url_for('creators_directory') }}">Creators</a>
+          <a href="{{ url_for('businesses_directory') }}">Businesses</a>
+          <a href="{{ url_for('business_create') }}">Create business page</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Log in to create posts</a>
+          <a href="{{ url_for('login') }}">Messages</a>
+          <a href="{{ url_for('creators_directory') }}">Creators</a>
+          <a href="{{ url_for('businesses_directory') }}">Businesses</a>
+        {% endif %}
+      </div>
+    </details>
+
+    <details class="nav-group">
+      <summary><span class="nav-symbol">◎</span> My space &amp; tools <span class="nav-chevron">⌄</span></summary>
+      <div class="nav-group-links">
+        {% if current_user %}
+          <a href="{{ url_for('profile') }}">My profile</a>
+          <a href="{{ url_for('edit_profile') }}">Edit profile</a>
+          <a href="{{ url_for('saved_posts') }}">Saved posts</a>
+          <a href="{{ url_for('shop_cart') }}">Shopping cart</a>
+          <a href="{{ url_for('shop_wishlist') }}">Product wishlist</a>
+          <a href="{{ url_for('shop_price_alerts') }}">Price alerts</a>
+          <a href="{{ url_for('shop_recently_viewed') }}">Recently viewed</a>
+          <a href="{{ url_for('blocked_members') }}">Blocked members</a>
+          <a href="{{ url_for('creator_dashboard') }}">Creator studio</a>
+          {% if current_user_is_admin %}
+            <a class="nav-subheading" href="{{ url_for('admin_dashboard') }}">Admin dashboard</a>
+            <a href="{{ url_for('admin_system_readiness') }}">System readiness</a>
+            <a href="{{ url_for('admin_affiliate_partners') }}">Affiliate partners</a>
+            <a href="{{ url_for('admin_shop_products') }}">Shop products</a>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('login') }}">Log in</a>
+          <a href="{{ url_for('register') }}">Create an account</a>
+          <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+        {% endif %}
+      </div>
+    </details>
+
+    {% if current_user %}
+      <form class="menu-logout" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="nav-button">Log out</button></form>
+    {% else %}
+      <a href="{{ url_for('register') }}" class="join-button">Join Gather</a>
+    {% endif %}
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change appearance theme">Theme: System</button>
+    <div class="nav-menu-footer"><span>ONE WORLD. ONE PLATFORM.</span><a href="{{ url_for('home') }}">Return home ↗</a></div>
+  </nav>
+    </div>
+  </div>
+
+  <div class="moments-filterbar" role="group" aria-label="Filter media">
+    <button type="button" class="moments-filter is-active" data-media-filter="all">For you</button>
+    <button type="button" class="moments-filter" data-media-filter="video">Videos</button>
+    <button type="button" class="moments-filter" data-media-filter="image">Photos</button>
+  </div>
+
+  <div class="moments-feed" id="moments-feed" aria-label="Community photos and videos">
+    {% for m in moments %}
+    <article class="moment-card" id="moment-{{ m.id }}" data-media-kind="{{ m.media_type }}">
+      <div class="moment-media-stage" data-moment-stage>
+        {% if m.media_type == 'video' %}
+          <video class="moment-media moment-video" src="{{ m.media_url }}" playsinline muted loop preload="none" data-moment-video aria-label="Video by {{ m.display_name }}"></video>
+          <button class="moment-play-indicator" type="button" data-toggle-play aria-label="Play or pause video">Ⅱ</button>
+          <button class="moment-audio-toggle" type="button" data-audio-toggle aria-label="Turn sound on">♫</button>
+        {% else %}
+          <img class="moment-media moment-image" src="{{ m.media_url }}" alt="Photo shared by {{ m.display_name }}" loading="lazy" decoding="async"
+        {% endif %}
+        <div class="moment-vignette" aria-hidden="true"></div>
+      </div>
+
+      <div class="moment-top-shade" aria-hidden="true"></div>
+      <div class="moment-caption">
+        <a class="moment-author" href="{{ url_for('public_profile',username=m.username) }}">
+          <img class="moment-avatar" src="{{ m.avatar_url or url_for('static', filename='images/profile_avatars/' ~ m.avatar_preset) }}" alt="{{ m.display_name }} profile picture" loading="lazy decoding="async"
+          <span class="moment-author-text"><strong>{{ m.display_name }}</strong><small>@{{ m.username }}</small></span>
+        </a>
+        {% if m.body %}<p class="moment-description">{{ m.body }}</p>{% endif %}
+        <div class="moment-post-meta"><span class="moment-kind-pill">{% if m.media_type == 'video' %}▶ Video{% else %}▧ Photo{% endif %}</span><span>{{ m.created_at.strftime('%b %d') if m.created_at else 'Gather World' }}</span></div>
+      </div>
+
+      <aside class="moment-action-rail" aria-label="Post actions">
+        <a class="moment-rail-profile" href="{{ url_for('public_profile',username=m.username) }}" aria-label="View {{ m.display_name }} profile"><img src="{{ m.avatar_url or url_for('static', filename='images/profile_avatars/' ~ m.avatar_preset) }}" alt="" loading="lazy decoding="async"</a>
+        {% if current_user and current_user.id != m.user_id %}
+          <form method="post" action="{{ url_for('follow',username=m.username) }}" class="moment-rail-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="return_to" value="moments">
+            <button class="moment-follow-button{% if m.following %} is-following{% endif %}" type="submit" aria-label="{{ 'Unfollow' if m.following else 'Follow' }} {{ m.username }}"><span>{{ '✓' if m.following else '+' }}</span><small>{{ 'Following' if m.following else 'Follow' }}</small></button>
+          </form>
+        {% endif %}
+        {% if current_user %}
+          <form method="post" action="{{ url_for('like',pid=m.id) }}" class="moment-rail-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="moment-rail-button{% if m.liked %} is-liked{% endif %}" type="submit" aria-label="Like post"><span class="moment-rail-icon">{{ '♥' if m.liked else '♡' }}</span><small>{{ m.likes }}</small></button>
+          </form>
+          <a class="moment-rail-button" href="{{ url_for('post_detail',pid=m.id) }}#comments" aria-label="Open comments"><span class="moment-rail-icon">▢</span><small>{{ m.comments }}</small></a>
+          <form method="post" action="{{ url_for('toggle_bookmark',pid=m.id) }}" class="moment-rail-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="moment-rail-button{% if m.bookmarked %} is-saved{% endif %}" type="submit" aria-label="Save post"><span class="moment-rail-icon">{{ '◆' if m.bookmarked else '◇' }}</span><small>Save</small></button>
+          </form>
+          {% if current_user.id != m.user_id %}
+          <form method="post" action="{{ url_for('repost',pid=m.id) }}" class="moment-rail-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button class="moment-rail-button" type="submit" aria-label="Repost"><span class="moment-rail-icon">↻</span><small>{{ m.reposts }}</small></button>
+          </form>
+          {% endif %}
+        {% else %}
+          <a class="moment-rail-button" href="{{ url_for('login') }}"><span class="moment-rail-icon">♡</span><small>Like</small></a>
+          <a class="moment-rail-button" href="{{ url_for('login') }}"><span class="moment-rail-icon">▢</span><small>Save</small></a>
+        {% endif %}
+        <button class="moment-rail-button share-copy" type="button" data-copy-url="{{ url_for('post_detail',pid=m.id,_external=True) }}" aria-label="Share post"><span class="moment-rail-icon">↗</span><small>Share</small></button>
+      </aside>
+      <div class="moment-bottom-progress" aria-hidden="true"><span></span></div>
+    </article>
+    {% else %}
+    <section class="moments-empty">
+      <div class="moments-empty-icon">◉</div>
+      <span class="section-kicker">YOUR NEXT DISCOVERY</span>
+      <h1>Nothing here yet</h1>
+      <p>Photos and videos shared by the Gather World community will appear here.</p>
+      <a class="moments-empty-cta" href="{{ url_for('feed') }}#post-composer">Upload your first photo or video</a>
+    </section>
+    {% endfor %}
+  </div>
+  <div class="moments-hint" aria-hidden="true">SCROLL TO EXPLORE <span>↓</span></div>
+</div>
+{% endblock %}

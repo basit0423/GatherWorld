@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827" id="gather-theme-color">
+    <meta name="color-scheme" content="dark light">
+    <meta name="description" content="Gather World — connect, share ideas and discover communities.">
+    <script>
+  (function () {
+    try {
+      const mode = localStorage.getItem('gather-theme-mode');
+      const legacy = localStorage.getItem('gather-theme');
+      const chosen = mode || legacy || 'system';
+      const systemTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      const effective = chosen === 'system' ? systemTheme : (chosen === 'light' ? 'light' : 'dark');
+      document.documentElement.dataset.theme = effective;
+      document.documentElement.dataset.themeMode = chosen;
+    } catch (_) { document.documentElement.dataset.theme = 'dark'; document.documentElement.dataset.themeMode = 'system'; }
+  })();
+</script>
+    <title>{% block title %}Gather World{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=phase12-17">
+</head>
+<body class="{% block body_class %}site-page{% endblock %}">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header compact-header">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="Gather World home">
+        <span class="brand-icon">◉</span> Gather<span class="brand-world">World</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-controls="main-navigation" aria-expanded="false" data-menu-toggle>
+        <span></span><span></span><span></span>
+    </button>
+<nav class="main-nav" id="main-navigation" aria-label="Main navigation" hidden>
+    <form class="menu-search" action="{{ url_for('search') }}" method="get" role="search">
+      <label class="visually-hidden" for="main-navigation-search">Search Gather World</label>
+      <span aria-hidden="true">⌕</span>
+      <input id="main-navigation-search" type="search" name="q" minlength="2" maxlength="80" placeholder="Search people, posts, communities…">
+      <kbd>Ctrl K</kbd>
+    </form>
+
+    <a href="{{ url_for('home') }}" class="nav-link nav-home"><span class="nav-symbol">⌂</span> Home</a>
+
+    <details class="nav-group">
+      <summary><span class="nav-symbol">⌕</span> Explore &amp; discover <span class="nav-chevron">⌄</span></summary>
+      <div class="nav-group-links">
+        <a href="{{ url_for('explore') }}">Explore</a>
+        <a href="{{ url_for('search') }}">Global search</a>
+        <a href="{{ url_for('feed') }}">Community feed</a>
+        <a href="{{ url_for('moments') }}">Photos &amp; Moments</a>
+        <a href="{{ url_for('members') }}">People</a>
+        <a href="{{ url_for('community_list') }}">Communities</a>
+        <a href="{{ url_for('shop_home') }}">Shopping</a>
+        <a href="{{ url_for('shop_deals') }}">Deals &amp; offers</a>
+        <a href="{{ url_for('shop_compare') }}">Compare products</a>
+        <a href="{{ url_for('affiliate_partners_public') }}">Partner directory</a>
+        <span class="nav-subheading">More ways to explore</span>
+        <a href="{{ url_for('services_directory') }}">Services &amp; freelancing</a>
+        <a href="{{ url_for('food_directory') }}">Food &amp; local</a>
+        <a href="{{ url_for('travel_directory') }}">Travel &amp; tourism</a>
+        <a href="{{ url_for('learning_directory') }}">Education &amp; learning</a>
+        <a href="{{ url_for('careers_directory') }}">Careers &amp; jobs</a>
+        <a href="{{ url_for('events_directory') }}">Events &amp; experiences</a>
+      </div>
+    </details>
+
+    <details class="nav-group">
+      <summary><span class="nav-symbol">✦</span> Create &amp; connect <span class="nav-chevron">⌄</span></summary>
+      <div class="nav-group-links">
+        {% if current_user %}
+          <a href="{{ url_for('feed') }}#post-composer">Create a post</a>
+          <a href="{{ url_for('messages_inbox') }}">Messages{% if unread_messages %}<span class="notification-badge">{{ unread_messages }}</span>{% endif %}</a>
+          <a href="{{ url_for('message_new') }}">New conversation</a>
+          <a href="{{ url_for('notifications') }}">Notifications{% if unread_notifications %}<span class="notification-badge">{{ unread_notifications }}</span>{% endif %}</a>
+          <a href="{{ url_for('ai_home') }}">Gather AI</a>
+          <a href="{{ url_for('creators_directory') }}">Creators</a>
+          <a href="{{ url_for('businesses_directory') }}">Businesses</a>
+          <a href="{{ url_for('business_create') }}">Create business page</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Log in to create posts</a>
+          <a href="{{ url_for('login') }}">Messages</a>
+          <a href="{{ url_for('creators_directory') }}">Creators</a>
+          <a href="{{ url_for('businesses_directory') }}">Businesses</a>
+        {% endif %}
+      </div>
+    </details>
+
+    <details class="nav-group">
+      <summary><span class="nav-symbol">◎</span> My space &amp; tools <span class="nav-chevron">⌄</span></summary>
+      <div class="nav-group-links">
+        {% if current_user %}
+          <a href="{{ url_for('profile') }}">My profile</a>
+          <a href="{{ url_for('edit_profile') }}">Edit profile</a>
+          <a href="{{ url_for('saved_posts') }}">Saved posts</a>
+          <a href="{{ url_for('shop_cart') }}">Shopping cart</a>
+          <a href="{{ url_for('shop_wishlist') }}">Product wishlist</a>
+          <a href="{{ url_for('shop_price_alerts') }}">Price alerts</a>
+          <a href="{{ url_for('shop_recently_viewed') }}">Recently viewed</a>
+          <a href="{{ url_for('blocked_members') }}">Blocked members</a>
+          <a href="{{ url_for('creator_dashboard') }}">Creator studio</a>
+          <a href="{{ url_for('my_directory_listings') }}">My service &amp; event listings</a>
+          {% if current_user_is_admin %}
+            <a class="nav-subheading" href="{{ url_for('admin_dashboard') }}">Admin dashboard</a>
+            <a href="{{ url_for('admin_system_readiness') }}">System readiness</a>
+            <a href="{{ url_for('admin_affiliate_partners') }}">Affiliate partners</a>
+            <a href="{{ url_for('admin_shop_products') }}">Shop products</a>
+            <a href="{{ url_for('admin_directory_listings') }}">Directory moderation</a>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('login') }}">Log in</a>
+          <a href="{{ url_for('register') }}">Create an account</a>
+          <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+        {% endif %}
+      </div>
+    </details>
+
+    {% if current_user %}
+      <form class="menu-logout" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="nav-button">Log out</button></form>
+    {% else %}
+      <a href="{{ url_for('register') }}" class="join-button">Join Gather</a>
+    {% endif %}
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change appearance theme">Theme: System</button>
+    <div class="nav-menu-footer"><span>ONE WORLD. ONE PLATFORM.</span><a href="{{ url_for('home') }}">Return home ↗</a></div>
+  </nav>
+</header>
+<main id="main-content" class="page-container {% block main_class %}{% endblock %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="notice {{ category }}" role="status">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+<footer class="site-footer" aria-label="Gather World footer">
+  <div class="footer-inner">
+    <div class="footer-intro">
+      <a class="footer-brand" href="{{ url_for('home') }}"><span aria-hidden="true">◉</span> Gather World</a>
+      <p>One world. One platform. Endless possibilities.</p>
+      <p class="footer-note">Discover communities, share ideas and explore useful products and services.</p>
+    </div>
+    <div class="footer-column">
+      <h2>Explore</h2>
+      <a href="{{ url_for('explore') }}">Explore</a>
+      <a href="{{ url_for('feed') }}">Feed</a>
+      <a href="{{ url_for('moments') }}">Moments</a>
+      <a href="{{ url_for('members') }}">People</a>
+      <a href="{{ url_for('community_list') }}">Communities</a>
+    </div>
+    <div class="footer-column">
+      <h2>Discover more</h2>
+      <a href="{{ url_for('shop_home') }}">Shopping</a>
+      <a href="{{ url_for('affiliate_partners_public') }}">Partner directory</a>
+      <a href="{{ url_for('creators_directory') }}">Creators</a>
+      <a href="{{ url_for('businesses_directory') }}">Businesses</a>
+      <a href="{{ url_for('ai_home') }}">Gather AI</a>
+      <a href="{{ url_for('services_directory') }}">Services</a>
+      <a href="{{ url_for('food_directory') }}">Food &amp; local</a>
+      <a href="{{ url_for('travel_directory') }}">Travel</a>
+      <a href="{{ url_for('learning_directory') }}">Learning</a>
+      <a href="{{ url_for('careers_directory') }}">Careers</a>
+      <a href="{{ url_for('events_directory') }}">Events</a>
+    </div>
+    <div class="footer-column">
+      <h2>About Gather</h2>
+      <a href="{{ url_for('starter', page='about') }}">About us</a>
+      <a href="{{ url_for('starter', page='contact') }}">Contact</a>
+      <a href="{{ url_for('starter', page='help') }}">Help center</a>
+      <a href="{{ url_for('starter', page='guidelines') }}">Community guidelines</a>
+      <a href="{{ url_for('starter', page='safety') }}">Safety</a>
+      <a href="{{ url_for('starter', page='status') }}">Service status</a>
+    </div>
+    <div class="footer-column">
+      <h2>Policies</h2>
+      <a href="{{ url_for('starter', page='privacy') }}">Privacy policy</a>
+      <a href="{{ url_for('starter', page='terms') }}">Terms of use</a>
+      <a href="{{ url_for('starter', page='affiliate-disclosure') }}">Affiliate disclosure</a>
+      <a href="{{ url_for('starter', page='feedback') }}">Feedback</a>
+      <a href="{{ url_for('starter', page='developers') }}">Developers</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© Gather World. All rights reserved.</span>
+    <a href="{{ url_for('home') }}">Back to top ↑</a>
+  </div>
+</footer>
+<script src="{{ url_for('static', filename='js/main.js') }}?v=phase12-17" defer></script>
+</body>
+</html>

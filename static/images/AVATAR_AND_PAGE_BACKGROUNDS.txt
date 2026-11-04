@@ -1,0 +1,3 @@
+Gather World page backgrounds are fixed, full-viewport images with a lighter dark overlay. The background remains fixed while page content scrolls.
+
+Profile Settings contains a gallery of bundled avatars. A personal DP can be uploaded to Cloudinary after adding the three CLOUDINARY_* values to your private .env. Never upload .env to GitHub.

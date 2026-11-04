@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ community.name }} · Gather World{% endblock %}
+{% block content %}
+<section class="community-detail-hero community-cover-{{ community.id % 6 }}">
+  <div class="community-detail-mark">{{ community.name[:1]|upper }}</div>
+  <div class="community-detail-copy"><span class="community-visibility">{{ 'Private community' if community.visibility=='private' else 'Public community' }} · {{ community.category }}</span><h1>{{ community.name }}</h1><p>{{ community.description or 'A place to connect and share.' }}</p><span class="community-member-count">{{ member_count }} members · @{{ community.slug }}</span></div>
+  <div class="community-detail-actions">
+  {% if current_user %}
+    {% if role %}
+      {% if role in ['owner','admin'] %}<a class="btn btn-secondary" href="{{ url_for('community_settings',slug=community.slug) }}">Manage</a>{% endif %}
+      {% if role!='owner' %}<form method="post" action="{{ url_for('community_leave',slug=community.slug) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn btn-secondary" type="submit">Leave</button></form>{% endif %}
+    {% elif community.visibility=='public' %}
+      <form method="post" action="{{ url_for('community_join',slug=community.slug) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" type="submit">＋ Join community</button></form>
+    {% elif pending_request and pending_request.status=='pending' %}<span class="member-pill">Request pending</span>
+    {% else %}<form method="post" action="{{ url_for('community_join',slug=community.slug) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label class="sr-only" for="join-message">Message to moderators</label><input id="join-message" name="message" maxlength="500" placeholder="Message to moderators (optional)"><button class="btn" type="submit">Request to join</button></form>{% endif %}
+  {% else %}<a class="btn" href="{{ url_for('login') }}">Log in to join</a>{% endif %}
+  </div>
+</section>
+{% if community.rules %}<details class="community-rules panel"><summary>Community rules</summary><p>{{ community.rules }}</p></details>{% endif %}
+{% if community.visibility=='private' and not role %}
+  <section class="panel private-community-notice"><span class="community-empty-icon">⌑</span><h2>This community is private</h2><p>Request membership to see discussions, members and events.</p></section>
+{% else %}
+<div class="community-layout">
+  <div class="community-main-column">
+    {% if current_user and role %}
+    <section class="panel community-composer"><h2>Start a discussion</h2><form method="post" action="{{ url_for('community_create_post',slug=community.slug) }}" class="form-stack" enctype="multipart/form-data"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><textarea name="body" rows="3" maxlength="2000" placeholder="Share a discussion, photo or video…"></textarea><label class="community-media-pick">＋ Add photo or video<input type="file" name="media_file" accept=".jpg,.jpeg,.png,.webp,.mp4,.m4v,.mov,.webm,image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"></label>{% if is_staff %}<label class="checkbox-line"><input type="checkbox" name="announcement" value="1"> Pin as an announcement</label>{% endif %}<button class="btn" type="submit">Publish discussion</button></form></section>
+    {% endif %}
+    <div class="community-post-list">
+    {% for post in posts %}
+      <article class="community-post panel">
+        {% if post.is_announcement %}<div class="community-announcement-label">✦ Community announcement</div>{% endif %}
+        <div class="community-post-author"><span class="community-mini-avatar">{{ post.display_name[:1]|upper }}</span><div><strong>{{ post.display_name }}</strong><small>@{{ post.username }} · {{ post.created_at.strftime('%b %d, %Y') }}</small></div></div>
+        {% if post.body %}<p class="community-post-copy">{{ post.body }}</p>{% endif %}
+        {% if post.media_url %}{% if post.media_type=='image' %}<img class="community-post-media" src="{{ post.media_url }}" alt="Photo shared in {{ community.name }}" loading="lazy" decoding="async"{% elif post.media_type=='video' %}<video class="community-post-media" src="{{ post.media_url }}" controls playsinline preload="metadata"></video>{% endif %}{% endif %}
+        <div class="community-post-actions"><span>Community discussion</span>
+          {% if current_user and (current_user.id==post.user_id or is_staff) %}<form method="post" action="{{ url_for('community_delete_post',slug=community.slug,post_id=post.id) }}" onsubmit="return confirm('Remove this discussion?');"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="text-button" type="submit">Remove</button></form>
+          {% elif current_user %}<form method="post" action="{{ url_for('community_report_post',slug=community.slug,post_id=post.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="reason" value="other"><button class="text-button" type="submit">Report</button></form>{% endif %}
+        </div>
+      </article>
+    {% else %}<div class="panel community-empty"><h2>Start the conversation</h2><p>There are no discussions here yet.</p></div>{% endfor %}
+    </div>
+  </div>
+  <aside class="community-side-column">
+    <section class="panel community-side-panel"><div class="community-side-heading"><h2>Members</h2><span>{{ member_count }}</span></div>
+      {% for member in members[:12] %}<a class="community-member-row" href="{{ url_for('public_profile',username=member.username) }}"><span class="community-mini-avatar">{{ member.display_name[:1]|upper }}</span><span><strong>{{ member.display_name }}</strong><small>@{{ member.username }}</small></span><em>{{ member.role }}</em></a>{% endfor %}
+    </section>
+    <section class="panel community-side-panel"><div class="community-side-heading"><h2>Upcoming events</h2>{% if is_staff %}<span>Host</span>{% endif %}</div>
+      {% for event in events %}<div class="community-event-row"><strong>{{ event.title }}</strong><small>{{ event.starts_at.strftime('%b %d, %Y · %H:%M UTC') }}</small>{% if event.location %}<small>{{ event.location }}</small>{% endif %}<p>{{ event.details }}</p></div>{% else %}<p class="muted-copy">No upcoming events yet.</p>{% endfor %}
+      {% if is_staff %}<details class="community-event-form"><summary>＋ Create event</summary><form method="post" action="{{ url_for('community_create_event',slug=community.slug) }}" class="form-stack"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>Event title<input name="title" maxlength="100" required></label><label>Date and time (UTC)<input type="datetime-local" name="starts_at" required></label><label>Location or online venue<input name="location" maxlength="180"></label><label>Details<textarea name="details" maxlength="1000" rows="3"></textarea></label><button class="btn" type="submit">Create event</button></form></details>{% endif %}
+    </section>
+    {% if is_staff and requests %}<section class="panel community-side-panel"><h2>Join requests</h2>{% for item in requests %}<div class="community-request-row"><strong>{{ item.display_name }}</strong><small>@{{ item.username }} · {{ item.message }}</small><div class="community-request-actions"><form method="post" action="{{ url_for('community_review_request',slug=community.slug,request_id=item.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="approve"><button class="btn" type="submit">Approve</button></form><form method="post" action="{{ url_for('community_review_request',slug=community.slug,request_id=item.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reject"><button class="btn btn-secondary" type="submit">Decline</button></form></div></div>{% endfor %}</section>{% endif %}
+    {% if is_staff and reports %}<section class="panel community-side-panel"><h2>Reported discussions</h2>{% for report in reports %}<div class="community-request-row"><strong>{{ report.reason|title }} · @{{ report.reporter_username }}</strong><small>{{ report.body[:120] }}{% if report.details %} · {{ report.details }}{% endif %}</small><div class="community-request-actions"><form method="post" action="{{ url_for('community_resolve_report',slug=community.slug,report_id=report.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="remove_post"><button class="btn" type="submit">Remove</button></form><form method="post" action="{{ url_for('community_resolve_report',slug=community.slug,report_id=report.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="dismiss"><button class="btn btn-secondary" type="submit">Dismiss</button></form></div></div>{% endfor %}</section>{% endif %}
+  </aside>
+</div>
+{% endif %}
+{% endblock %}

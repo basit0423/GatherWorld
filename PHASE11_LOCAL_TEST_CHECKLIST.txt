@@ -1,0 +1,59 @@
+GATHER WORLD PHASE 11 — LOCAL TEST CHECKLIST
+
+BEFORE INSTALLATION
+[ ] Back up E:\GatherWorld.
+[ ] Back up the Neon database.
+[ ] Extract this ZIP to a temporary folder.
+[ ] Copy files into E:\GatherWorld; keep the existing .env and .venv.
+
+STARTUP AND MIGRATION
+[ ] Activate the existing virtual environment.
+[ ] Run python app.py.
+[ ] Confirm Phase 11 database tables are created without migration errors.
+[ ] Open http://127.0.0.1:5000/shop.
+
+PUBLIC SHOPPING
+[ ] Confirm the empty state appears while no retailer/product is approved.
+[ ] Open /shop/deals, /shop/compare and /shop/recently-viewed.
+[ ] Confirm unapproved retailers and draft products are not public.
+
+ADMIN CATALOGUE
+[ ] Log in as the configured administrator.
+[ ] Open /admin/shop-products.
+[ ] Confirm only Daraz, Amazon and eBay are in the product partner selector.
+[ ] Add a test product as Draft using a test HTTPS image URL you are authorized to use.
+[ ] Confirm draft product is not visible at /shop.
+[ ] Confirm a Research/Applied partner cannot have a product published.
+[ ] Do not approve a partner or invent a tracking URL for testing.
+[ ] After a real partner approval, enter its real product-specific HTTPS affiliate URL.
+[ ] Publish a permitted test product only after approval and link issuance.
+
+MEMBER SHOPPING TOOLS (after at least one legitimate product is published)
+[ ] Log in as a normal member.
+[ ] Open a product detail page.
+[ ] Add product to cart; confirm login is required when logged out.
+[ ] Add another product from the same retailer and a different retailer.
+[ ] Confirm cart groups by retailer and never claims to transfer a whole basket to retailer checkout.
+[ ] Update quantity (1–10) and remove a cart item.
+[ ] Add/remove an item from wishlist.
+[ ] Add up to four products to compare; test the fifth-product limit.
+[ ] Set a price alert.
+[ ] As admin, lower a product price to or below the target; confirm an in-app notification appears.
+[ ] Confirm recently viewed products appear.
+[ ] Click a retailer handoff and confirm the browser goes to the saved HTTPS tracking link.
+[ ] Confirm admin product click count increases.
+
+SECURITY AND FINAL CHECKS
+[ ] Confirm all forms work with CSRF tokens.
+[ ] Confirm normal users cannot open /admin/shop-products.
+[ ] Confirm only approved partner products with product-specific HTTPS tracking links are public.
+[ ] Confirm no local .env or .venv was placed in Git or the ZIP.
+[ ] Test Light Mode and Dark Mode on shopping pages.
+[ ] Test desktop and mobile layouts.
+
+IMPORTANT
+- Gather World does not accept payment or fulfil orders in Phase 11.
+- Cart items are sent to the retailer one product at a time; partner cart synchronization is not implemented.
+- Product prices and offer comparisons are manually maintained, not live feeds.
+- Never publish unapproved links, fabricated discounts or unauthorized product images.
+- No deployment to GitHub or Vercel is included.

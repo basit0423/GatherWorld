@@ -1,0 +1,19 @@
+GATHER WORLD PHASE 3 — LOCAL TEST CHECKLIST
+
+[ ] Start app.py and confirm database migration completes.
+[ ] Open /feed and verify posts appear.
+[ ] Like another member's post; verify a notification is created.
+[ ] Follow another member; verify a notification is created.
+[ ] Add a comment; verify a notification is created for the post author.
+[ ] Reply to a comment; verify the reply appears nested.
+[ ] Save a post; open /saved; remove it and verify it disappears.
+[ ] Repost a post from another member; verify attribution in /feed.
+[ ] Try reposting the same post twice; verify duplicate is prevented.
+[ ] Open /notifications; mark one notification read and then mark all read.
+[ ] Use Share; verify the post URL copies.
+[ ] Open /moments; test with a direct HTTPS MP4 video post.
+[ ] Verify /admin and Phase 2 moderation still work.
+[ ] Verify own profile, username edit, login, OTP and password reset still work.
+[ ] Test on mobile-sized browser window.
+
+Do not test suspension on your administrator account. Keep .env private.

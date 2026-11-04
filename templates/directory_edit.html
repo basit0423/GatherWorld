@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ entry.title }} · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page gw-directory-form-page">
+  <header class="gw-directory-section-heading"><div><span class="section-kicker">YOUR LISTING</span><h1>Edit listing</h1><p>Update the information shown to the Gather World community.</p></div><a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">← My listings</a></header>
+  <section class="gw-directory-form-card">
+    <form method="post" class="gw-directory-form">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="gw-form-grid">
+        <label class="gw-span-two">Title <span>*</span><input name="title" required maxlength="140" value="{{ entry.title }}"></label>
+        <label>URL nickname<input value="{{ entry.slug }}" disabled><small>The URL nickname stays the same so existing links continue working.</small></label>
+        <label>Category <span>*</span><select name="category" required>{% for item in module.categories %}<option value="{{ item }}" {% if entry.category==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
+        <label class="gw-span-two">Short summary <span>*</span><input name="summary" required maxlength="260" value="{{ entry.summary }}"></label>
+        <label class="gw-span-two">Full description<textarea name="description" rows="6" maxlength="6000">{{ entry.description }}</textarea></label>
+        <label>Location<input name="location" maxlength="180" value="{{ entry.location }}"></label>
+        <label>Price / rate / offer label<input name="price_label" maxlength="80" value="{{ entry.price_label }}"></label>
+        <label class="gw-span-two">Official website (HTTPS)<input name="external_url" type="url" value="{{ entry.external_url }}"></label>
+        <label>Public contact email<input name="contact_email" type="email" maxlength="255" value="{{ entry.contact_email }}"></label>
+        <label>Image URL (HTTPS)<input name="image_url" type="url" value="{{ entry.image_url }}"></label>
+        {% if kind=='event' %}<label>Event starts (UTC)<input type="datetime-local" name="event_starts_at" value="{{ entry.event_starts_at.strftime('%Y-%m-%dT%H:%M') if entry.event_starts_at else '' }}" required></label><label>Event ends (UTC)<input type="datetime-local" name="event_ends_at" value="{{ entry.event_ends_at.strftime('%Y-%m-%dT%H:%M') if entry.event_ends_at else '' }}"></label>{% endif %}
+      </div>
+      <div class="gw-directory-form-notice"><strong>Keep information accurate</strong><p>Only publish information you are authorized to share. Listings remain community-submitted and are not independently verified by Gather World.</p></div>
+      <div class="gw-directory-form-actions"><a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">Cancel</a><button class="btn" type="submit">Save changes</button></div>
+    </form>
+  </section>
+</section>
+{% endblock %}

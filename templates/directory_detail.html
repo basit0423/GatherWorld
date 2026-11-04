@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ entry.title }} · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page">
+  <a class="gw-back-link" href="{{ url_for(module.directory_endpoint) }}">← Back to {{ module.title }}</a>
+  <article class="gw-directory-detail">
+    <div class="gw-directory-detail-media">
+      {% if entry.image_url %}<img src="{{ entry.image_url }}" alt="{{ entry.title }}" decoding="async">{% else %}<span class="gw-directory-detail-initial">{{ entry.title[:1]|upper }}</span>{% endif %}
+      <span class="gw-directory-kind">{{ module.kind_label }} · Community submitted</span>
+    </div>
+    <div class="gw-directory-detail-content">
+      <div class="gw-directory-card-meta"><span>{{ entry.category }}</span>{% if entry.location %}<span>{{ entry.location }}</span>{% endif %}</div>
+      <h1>{{ entry.title }}</h1>
+      {% if entry.summary %}<p class="gw-directory-lead">{{ entry.summary }}</p>{% endif %}
+      {% if entry.price_label %}<div class="gw-directory-price">{{ entry.price_label }}</div>{% endif %}
+      <div class="gw-directory-description">{{ entry.description or 'More information has not been added yet.' }}</div>
+      {% if kind=='event' and entry.event_starts_at %}
+        <div class="gw-directory-event-panel"><strong>Event schedule</strong><span>Starts: {{ entry.event_starts_at.strftime('%d %b %Y · %H:%M UTC') }}</span>{% if entry.event_ends_at %}<span>Ends: {{ entry.event_ends_at.strftime('%d %b %Y · %H:%M UTC') }}</span>{% endif %}<span>{{ going_count }} going · {{ interested_count }} interested</span></div>
+        {% if current_user %}<form method="post" action="{{ url_for('event_rsvp',slug=entry.slug) }}" class="gw-directory-rsvp"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" name="response" value="going" type="submit">{{ '✓ Going' if my_rsvp=='going' else 'I’m going' }}</button><button class="btn btn-secondary" name="response" value="interested" type="submit">{{ '✓ Interested' if my_rsvp=='interested' else 'Interested' }}</button>{% if my_rsvp %}<button class="gw-text-link" name="response" value="none" type="submit">Remove response</button>{% endif %}</form>{% else %}<a class="btn" href="{{ url_for('login') }}">Sign in to RSVP</a>{% endif %}
+      {% elif kind=='service' and current_user and not is_owner %}
+        <form method="post" action="{{ url_for('service_contact',slug=entry.slug) }}" class="gw-directory-contact"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>Contact the provider<textarea name="message" rows="4" required minlength="10" maxlength="1800" placeholder="Describe what you need and ask a question…"></textarea></label><button class="btn" type="submit">Send inquiry</button></form>
+      {% endif %}
+      <div class="gw-directory-detail-actions">
+        {% if entry.external_url %}<a class="btn" href="{{ entry.external_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ module.action_label }} ↗</a>{% endif %}
+        {% if entry.contact_email %}<a class="btn btn-secondary" href="mailto:{{ entry.contact_email }}">Contact by email</a>{% endif %}
+        {% if is_owner %}<a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">Manage my listings</a><a class="btn btn-secondary" href="{{ url_for('directory_listing_edit',entry_id=entry.id) }}">Edit this listing</a>{% if kind=='service' %}<a class="btn btn-secondary" href="{{ url_for('service_inquiries',slug=entry.slug) }}">View inquiries</a>{% endif %}{% endif %}
+      </div>
+      <div class="gw-directory-owner"><span>Shared by</span><strong>{{ entry.owner_display_name }}</strong><a href="{{ url_for('public_profile',username=entry.owner_username) }}">@{{ entry.owner_username }}</a></div>
+      <p class="gw-directory-disclaimer">This is a community-submitted listing and has not been independently verified by Gather World. Confirm all details directly with the provider. Any external website has its own terms, prices and policies.</p>
+    </div>
+  </article>
+</section>
+{% endblock %}

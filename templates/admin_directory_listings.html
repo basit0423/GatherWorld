@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Directory moderation · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page">
+  <header class="gw-directory-section-heading"><div><span class="section-kicker">ADMINISTRATION</span><h1>Directory moderation</h1><p>Review community-submitted services, local listings, travel resources, learning resources, jobs and events.</p></div><a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">← Admin dashboard</a></header>
+  <div class="gw-admin-listings">
+    {% for entry in entries %}
+      <article class="gw-admin-listing"><div><span class="gw-listing-type">{{ entry.entry_kind|title }} · {{ entry.category }} · {{ 'Visible' if entry.is_active else 'Hidden' }}</span><h3>{{ entry.title }}</h3><p>{{ entry.summary }}</p><small>By @{{ entry.owner_username }} · {{ entry.created_at.strftime('%d %b %Y') }}</small></div><form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="entry_id" value="{{ entry.id }}"><button class="btn {{ 'btn-secondary' if entry.is_active else '' }}" name="action" value="{{ 'pause' if entry.is_active else 'activate' }}" type="submit">{{ 'Hide listing' if entry.is_active else 'Restore listing' }}</button></form></article>
+    {% else %}<div class="gw-directory-empty"><h2>No listings to review</h2></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

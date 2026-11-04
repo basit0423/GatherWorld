@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}#{{ slug }} — Gather World{% endblock %}
+{% block content %}
+<section class="topic-page">
+  <a class="back-link" href="{{ url_for('explore') }}">← Back to Explore</a>
+  <div class="topic-hero panel-card"><span class="section-kicker">GATHER WORLD TOPIC</span><h1>#{{ slug }}</h1><p>Public posts using this hashtag.</p></div>
+  <div class="explore-post-grid topic-post-grid">
+    {% for post in posts %}<article class="explore-post-card"><a class="explore-post-author" href="{{ url_for('public_profile',username=post.username) }}"><img src="{{ post.avatar_url or url_for('static',filename='images/profile_avatars/' ~ post.avatar_preset) }}" alt="" loading="lazy" decoding="async"<span><strong>{{ post.display_name }}</strong><small>@{{ post.username }}</small></span></a>{% if post.body %}<p>{{ post.body }}</p>{% endif %}{% if post.media_url %}{% if post.media_type=='image' %}<img class="explore-post-media" src="{{ post.media_url }}" alt="Post image" loading="lazy" decoding="async"{% elif post.media_type=='video' %}<video class="explore-post-media" src="{{ post.media_url }}" controls playsinline preload="metadata"></video>{% endif %}{% endif %}<div class="explore-post-meta"><span>{{ post.likes }} likes</span><span>{{ post.comments }} comments</span><a href="{{ url_for('post_detail',pid=post.id) }}">Open post ↗</a></div></article>{% else %}<div class="panel-card explore-empty"><h2>No posts for this topic yet</h2><p>When someone shares a post with #{{ slug }}, it will appear here.</p></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

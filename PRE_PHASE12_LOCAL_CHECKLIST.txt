@@ -1,0 +1,14 @@
+GATHER WORLD — PRE-PHASE 12 LOCAL CHECKLIST
+
+[ ] Back up project and Neon database
+[ ] Extract ZIP and copy files into E:\GatherWorld
+[ ] Keep existing .env and .venv
+[ ] Run python app.py
+[ ] Home menu: verify all three groups
+[ ] Feed menu: verify all three groups
+[ ] Moments menu: verify all three groups
+[ ] Test menu search and Ctrl+K / slash shortcut
+[ ] Test System / Light / Dark, then refresh
+[ ] Verify forms, post upload, messages, communities, AI and shop still work
+[ ] Check desktop and mobile layouts
+[ ] Check browser console for JavaScript errors

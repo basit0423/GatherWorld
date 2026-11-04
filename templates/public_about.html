@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}About Gather World{% endblock %}
+{% block content %}
+<section class="public-info-wrap">
+  <header class="public-info-hero"><span class="section-kicker">ABOUT GATHER WORLD</span><h1>One world. One platform. Endless possibilities.</h1><p>Gather World is being built as a welcoming place to connect, share ideas, discover communities and explore useful digital experiences.</p></header>
+  <section class="public-info-card"><h2>What you can do</h2><p>Members can create profiles, publish text and media posts, follow people, join communities, send messages, save content and discover public conversations.</p><p>Our longer-term vision includes shopping discovery, creator tools, business directories, learning, entertainment and other useful services. Features will be introduced gradually and clearly labeled as they become available.</p></section>
+  <section class="public-info-card"><h2>Our approach</h2><p>We aim to keep Gather World simple to use, respectful, accessible on mobile and desktop, and transparent about how features and partner services work.</p><a class="btn" href="{{ url_for('home') }}">Explore Gather World</a></section>
+</section>
+{% endblock %}

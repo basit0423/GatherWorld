@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block body_class %}error-page-body{% endblock %}
+{% block title %}Page not found · Gather World{% endblock %}
+{% block content %}<section class="single-auth-wrap"><div class="auth-card error-page"><div class="error-code">404</div><span class="section-kicker">NOT THIS WAY</span><h1>Page not found</h1><p class="muted">The page may have moved, or the address may be incorrect.</p><a class="btn btn-wide" href="{{ url_for('home') }}">← Return to Home</a></div></section>{% endblock %}

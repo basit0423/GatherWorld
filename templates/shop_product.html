@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ product.title }} · Gather Shopping{% endblock %}
+{% block content %}
+<section class="shop11-wrap">
+  <a class="shop11-back" href="{{ url_for('shop_home') }}">← Back to shopping</a>
+  <article class="shop11-detail">
+    <div class="shop11-detail-image">{% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.title }}" loading="lazy decoding="async"{% else %}<span class="shop11-image-placeholder">GATHER<br>FIND</span>{% endif %}</div>
+    <div class="shop11-detail-copy"><span class="section-kicker">{{ product.category }} · {{ product.partner_name }}</span><h1>{{ product.title }}</h1><div class="shop11-prices shop11-prices-large"><strong>{{ product.currency }} {{ '%.2f'|format(product.partner_price) }}</strong>{% if product.original_price %}<del>{{ product.currency }} {{ '%.2f'|format(product.original_price) }}</del><span class="shop11-deal-tag">Offer</span>{% endif %}</div><p>{{ product.description }}</p><p class="shop11-retailer-note">Sold by {{ product.partner_name }}. Price and availability are supplied by Gather World or its partner and may change. The retailer handles payment, delivery, returns and customer service.</p>
+      <div class="shop11-detail-actions"><form method="post" action="{{ url_for('shop_cart_add',product_id=product.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" type="submit">Add to Gather cart</button></form><form method="post" action="{{ url_for('shop_wishlist_toggle',product_id=product.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn btn-secondary" type="submit">{{ 'Remove wishlist' if is_saved else '♡ Add to wishlist' }}</button></form><form method="post" action="{{ url_for('shop_compare_add',product_id=product.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn btn-secondary" type="submit">Compare</button></form><a class="btn shop11-buy-button" href="{{ url_for('shop_partner_out',product_id=product.id) }}" target="_blank" rel="sponsored nofollow noopener">Shop at {{ product.partner_name }} ↗</a></div>
+      {% if current_user %}<form method="post" action="{{ url_for('shop_price_alerts') }}" class="shop11-alert-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="product_id" value="{{ product.id }}"><label>Notify me when price reaches<input name="target_price" type="number" min="0" step="0.01" placeholder="Target price" required></label><button class="btn btn-secondary btn-small" type="submit">Set price alert</button></form>{% else %}<p class="muted"><a href="{{ url_for('login') }}">Log in</a> to save products and set price alerts.</p>{% endif %}
+      <p class="shop11-disclosure">Affiliate disclosure: Gather World may earn a commission from qualifying purchases made through approved links. Your checkout takes place on the retailer's website.</p>
+    </div>
+  </article>
+  {% if related %}<section class="shop11-related"><h2>More in {{ product.category }}</h2><div class="shop11-grid">{% for product in related %}{% include "shop_product_card.html" %}{% endfor %}</div></section>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Inquiries · {{ entry.title }} · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page">
+  <header class="gw-directory-section-heading"><div><span class="section-kicker">SERVICE PROVIDER TOOLS</span><h1>Inquiries</h1><p>Messages people have sent about <strong>{{ entry.title }}</strong>.</p></div><a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">← My listings</a></header>
+  <div class="gw-service-inquiries">
+    {% for inquiry in inquiries %}
+      <article class="gw-service-inquiry"><div class="gw-inquiry-by"><strong>{{ inquiry.display_name }}</strong><a href="{{ url_for('public_profile',username=inquiry.username) }}">@{{ inquiry.username }}</a><span>{{ inquiry.created_at.strftime('%d %b %Y · %H:%M UTC') }}</span></div><p>{{ inquiry.message }}</p></article>
+    {% else %}<div class="gw-directory-empty"><h2>No inquiries yet</h2><p>When someone contacts you about this service, their message will appear here.</p></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

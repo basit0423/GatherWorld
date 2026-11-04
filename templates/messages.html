@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Messages — Gather World{% endblock %}
+{% block content %}
+<section class="message-page">
+  <div class="section-heading-row">
+    <div><span class="tag">YOUR INBOX</span><h1>Messages</h1><p>Private conversations and group chats, all in one place.</p></div>
+    <a class="btn" href="{{ url_for('message_new') }}">＋ New message</a>
+  </div>
+  <div class="message-list panel">
+    {% for item in conversations %}
+      <a class="message-list-item" href="{{ url_for('message_thread', conversation_id=item.id) }}">
+        <span class="message-avatar">{% if item.is_group %}✦{% else %}{{ (item.participant_names or 'G')[0]|upper }}{% endif %}</span>
+        <span class="message-list-copy">
+          <strong>{{ item.title if item.is_group and item.title else (item.participant_names or 'Conversation') }}</strong>
+          <small>{{ item.last_message or ('Group conversation' if item.is_group else 'Start the conversation') }}</small>
+        </span>
+        <span class="message-list-meta"><small>{{ item.updated_at.strftime('%b %d') if item.updated_at else '' }}</small>{% if item.unread %}<b>{{ item.unread }}</b>{% endif %}</span>
+      </a>
+    {% else %}
+      <div class="message-empty"><span>✉</span><h2>Your inbox is ready</h2><p>Start a private conversation with someone on Gather World.</p><a class="btn" href="{{ url_for('message_new') }}">Start a conversation</a></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

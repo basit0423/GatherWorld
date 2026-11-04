@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Recently viewed · Gather World{% endblock %}
+{% block content %}
+<section class="shop11-wrap"><header class="shop11-page-heading"><span class="section-kicker">YOUR SHOPPING HISTORY</span><h1>Recently viewed</h1><p>Return to products you've opened recently.</p><a class="btn btn-secondary" href="{{ url_for('shop_home') }}">Browse shopping</a></header>{% if products %}<div class="shop11-grid">{% for product in products %}{% include "shop_product_card.html" %}{% endfor %}</div>{% else %}<section class="shop11-empty"><div class="shop11-empty-icon">◷</div><h2>Nothing viewed yet</h2><p>Products you open will appear here.</p></section>{% endif %}</section>
+{% endblock %}

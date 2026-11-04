@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+{% block body_class %}register-page{% endblock %}Create account · Gather World{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <aside class="auth-showcase register-showcase">
+        <span class="eyebrow">YOUR WORLD STARTS HERE</span>
+        <div class="showcase-art image-slot image-slot--auth" aria-hidden="true"></div>
+        <h1>Make room for new connections.</h1>
+        <p>Join a growing space to share ideas, meet people and discover communities.</p>
+        <div class="showcase-tags"><span>CONNECT</span><span>SHARE</span><span>DISCOVER</span></div>
+    </aside>
+    <section class="auth-card">
+        <div class="section-kicker">CREATE YOUR ACCOUNT</div>
+        <h2>Join Gather World</h2>
+        <p class="muted">A few details are all you need to get started.</p>
+        <form method="post" class="form-stack" data-password-match><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label>Display name<input name="display_name" maxlength="60" autocomplete="name" placeholder="How should people know you?" required></label>
+            <label>Username<input name="username" pattern="[A-Za-z0-9_]+" minlength="3" maxlength="30" autocomplete="username" placeholder="Choose a username" required></label>
+            <label>Email address<input type="email" name="email" autocomplete="email" placeholder="you@example.com" required></label>
+            <label>Password<input type="password" name="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters" required></label>
+            <label>Re-enter password<input type="password" name="confirm_password" minlength="10" autocomplete="new-password" placeholder="Enter the same password again" required></label>
+            <p class="field-hint" data-password-message aria-live="polite">Use at least 10 characters and make both passwords match.</p>
+            <button class="btn btn-wide" type="submit">Create account <span>→</span></button>
+        </form>
+        <p class="auth-switch">Already a member? <a href="{{ url_for('login') }}">Log in</a></p>
+        <a class="subtle-home-link" href="{{ url_for('home') }}">← Return to Home</a>
+    </section>
+</section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}New conversation — Gather World{% endblock %}
+{% block content %}
+<section class="message-form-wrap">
+  <a class="back-link" href="{{ url_for('messages_inbox') }}">← Back to messages</a>
+  <div class="panel message-form-panel">
+    <span class="tag">START CONNECTING</span>
+    <h1>New conversation</h1>
+    <p>Enter one username for a private message, or several usernames to start a group conversation.</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <label>Username or usernames
+        <input name="usernames" value="{{ preset_username or '' }}" placeholder="itsbasit423 or member_one, member_two" required maxlength="600" autocomplete="off">
+        <small>Use usernames, not display names. You can enter up to 19 other members.</small>
+      </label>
+      <label>Group title (optional)
+        <input name="title" maxlength="100" placeholder="Weekend photography group">
+      </label>
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

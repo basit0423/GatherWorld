@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}My listings · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page">
+  <header class="gw-directory-section-heading"><div><span class="section-kicker">YOUR CONTRIBUTIONS</span><h1>My listings</h1><p>Manage the listings you have shared across Gather World.</p></div></header>
+  <section class="gw-my-listings">
+    {% for entry in entries %}
+      <article class="gw-my-listing-row"><div><span class="gw-listing-type">{{ entry.entry_kind|title }} · {{ entry.category }}</span><h3>{{ entry.title }}</h3><small>{{ entry.location or 'Location not specified' }} · {{ 'Visible' if entry.is_active else 'Hidden' }}</small></div><div class="gw-my-listing-actions">{% if entry.is_active %}<a class="btn btn-secondary" href="{{ {'service':url_for('service_detail',slug=entry.slug),'food':url_for('food_detail',slug=entry.slug),'travel':url_for('travel_detail',slug=entry.slug),'education':url_for('learning_detail',slug=entry.slug),'job':url_for('career_detail',slug=entry.slug),'event':url_for('event_detail',slug=entry.slug)}[entry.entry_kind] }}">View</a>{% else %}<span class="gw-muted">Hidden from directory</span>{% endif %}<a class="btn btn-secondary" href="{{ url_for('directory_listing_edit',entry_id=entry.id) }}">Edit</a>{% if entry.entry_kind=='service' %}<a class="btn btn-secondary" href="{{ url_for('service_inquiries',slug=entry.slug) }}">Inquiries</a>{% endif %}<form method="post" action="{{ url_for('directory_listing_visibility',entry_id=entry.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" type="submit">{{ 'Hide' if entry.is_active else 'Show' }}</button></form></div></article>
+    {% else %}<div class="gw-directory-empty"><h2>No listings yet</h2><p>When you create a service, food, travel, learning, job or event listing, it will appear here.</p></div>{% endfor %}
+  </section>
+</section>
+{% endblock %}

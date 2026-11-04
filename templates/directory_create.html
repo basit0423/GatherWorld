@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ module.create_title }} · Gather World{% endblock %}
+{% block content %}
+<section class="gw-directory-page gw-directory-form-page">
+  <header class="gw-directory-section-heading"><div><span class="section-kicker">GATHER WORLD · SHARE WITH THE COMMUNITY</span><h1>{{ module.create_title }}</h1><p>{{ module.create_hint }}</p></div><a class="btn btn-secondary" href="{{ url_for(module.directory_endpoint) }}">← Back to directory</a></header>
+  <section class="gw-directory-form-card">
+    <form method="post" class="gw-directory-form">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="gw-form-grid">
+        <label class="gw-span-two">Title <span>*</span><input name="title" required maxlength="140" placeholder="A clear, descriptive title"></label>
+        <label>URL nickname<input name="slug" maxlength="150" placeholder="Leave blank to use the title"><small>Lowercase letters, numbers and hyphens.</small></label>
+        <label>Category <span>*</span><select name="category" required>{% for item in module.categories %}<option value="{{ item }}">{{ item }}</option>{% endfor %}</select></label>
+        <label class="gw-span-two">Short summary <span>*</span><input name="summary" required maxlength="260" placeholder="Explain what this listing offers in one or two sentences"></label>
+        <label class="gw-span-two">Full description<textarea name="description" rows="6" maxlength="6000" placeholder="Add helpful details, requirements, opening hours, course outline or event information."></textarea></label>
+        <label>Location<input name="location" maxlength="180" placeholder="City, country or Remote"></label>
+        <label>{{ 'Price or starting rate (optional)' if kind=='service' else ('Price / offer label (optional)' if kind=='food' else ('Salary / compensation (optional)' if kind=='job' else 'Price or access details (optional)')) }}<input name="price_label" maxlength="80" placeholder="e.g. Free, From $25, Negotiable"></label>
+        <label class="gw-span-two">{{ {'service':'Portfolio or service website (HTTPS)','food':'Menu or official ordering website (HTTPS)','travel':'Official booking or information website (HTTPS)','education':'Course or learning resource website (HTTPS)','job':'Employer application page (HTTPS)','event':'Official event website or registration page (HTTPS)'}[kind] }}<input name="external_url" type="url" placeholder="https://example.com"></label>
+        <label>Public contact email<input name="contact_email" type="email" maxlength="255" placeholder="contact@example.com"></label>
+        <label>Image URL (optional, HTTPS)<input name="image_url" type="url" placeholder="https://..."></label>
+        {% if kind=='event' %}
+        <label>Event starts <span>*</span><input type="datetime-local" name="event_starts_at" required></label>
+        <label>Event ends (optional)<input type="datetime-local" name="event_ends_at"></label>
+        {% endif %}
+      </div>
+      <div class="gw-directory-form-notice"><strong>Before publishing</strong><p>Only submit accurate information that you have permission to share. Listings are community-submitted and will be labelled as unverified. Gather World does not process payments, bookings, hiring or deliveries in this phase.</p></div>
+      <div class="gw-directory-form-actions"><a class="btn btn-secondary" href="{{ url_for(module.directory_endpoint) }}">Cancel</a><button class="btn" type="submit">Publish listing</button></div>
+    </form>
+  </section>
+</section>
+{% endblock %}

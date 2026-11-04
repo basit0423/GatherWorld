@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile · Gather World{% endblock %}
+{% block body_class %}edit-profile-page{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><span class="section-kicker">MAKE IT YOURS</span><h1>Edit your profile</h1><p>Choose a Gather avatar or upload your own display picture.</p></div>
+  <a class="btn btn-secondary" href="{{ url_for('profile') }}">View profile</a>
+</section>
+<section class="panel-card settings-card profile-settings-card">
+  <div class="settings-heading">
+    <img class="avatar-img avatar-large" src="{{ me.avatar_url or url_for('static', filename='images/profile_avatars/' ~ me.avatar_preset) }}" alt="Your current display picture" loading="lazy decoding="async"
+    <div><strong>Profile information</strong><p>Your display name, photo and bio are visible to other members.</p></div>
+  </div>
+  <form method="post" enctype="multipart/form-data" class="form-stack" id="profile-settings-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label>Username / nickname
+      <input name="username" value="{{ me.username }}" minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]{3,30}" autocomplete="username" required>
+      <small class="field-hint">Your profile address uses this name. Use 3–30 letters, numbers or underscores. Usernames must be unique.</small>
+    </label>
+    <label>Display name<input name="display_name" value="{{ me.display_name }}" maxlength="60" required></label>
+    <label>Bio<textarea name="bio" maxlength="300" placeholder="Tell the community a little about yourself">{{ me.bio }}</textarea><small class="field-hint">Up to 300 characters.</small></label>
+
+    <div class="avatar-section-heading"><div><span class="section-kicker">GATHER AVATAR GALLERY</span><h2>Choose your display picture</h2></div><p>Select an avatar, or upload your own below.</p></div>
+    <div class="avatar-picker" role="radiogroup" aria-label="Choose a Gather avatar">
+      {% for avatar in avatar_presets %}
+      <label class="avatar-option">
+        <input type="radio" name="avatar_preset" value="{{ avatar }}" {% if not me.avatar_url and me.avatar_preset == avatar %}checked{% endif %}>
+        <img src="{{ url_for('static', filename='images/profile_avatars/' ~ avatar) }}" alt="Gather avatar {{ loop.index }}" loading="lazy" decoding="async"
+        <span>Use avatar</span>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div class="upload-avatar-panel">
+      <div><strong>Upload your own DP</strong><p>JPG, PNG or WEBP · maximum 5 MB. Your image is stored securely in Cloudinary.</p></div>
+      <label class="upload-file-label">Choose a photo<input type="file" name="avatar_file" id="avatar-file" accept="image/jpeg,image/png,image/webp"></label>
+      <div class="avatar-upload-preview" id="avatar-upload-preview" hidden><img id="avatar-preview-image" alt="Selected photo preview" loading="lazy decoding="async"<span>New photo selected — this will replace the selected avatar.</span></div>
+    </div>
+
+    <div class="form-actions"><a class="btn btn-secondary" href="{{ url_for('profile') }}">Cancel</a><button class="btn" type="submit">Save profile</button></div>
+  </form>
+</section>
+{% endblock %}

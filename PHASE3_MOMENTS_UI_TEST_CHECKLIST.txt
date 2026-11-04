@@ -1,0 +1,32 @@
+GATHER WORLD — PHASE 3 MOMENTS UI LOCAL TEST
+
+[ ] Open http://127.0.0.1:5000/moments
+[ ] Confirm both photo posts and video posts appear.
+[ ] Use For You / Videos / Photos filters.
+[ ] Scroll down and confirm each media post snaps into the full screen.
+[ ] Confirm visible videos autoplay muted and loop.
+[ ] Tap a video to pause/play.
+[ ] Use the sound button to unmute/mute.
+[ ] Like a post and confirm the count/state after reload.
+[ ] Open comments from the right rail.
+[ ] Save a post and confirm it appears in Saved.
+[ ] Repost another member’s post and confirm attribution in Feed.
+[ ] Follow/unfollow a creator.
+[ ] Share a post and confirm the URL copies.
+[ ] Use Home and Community links.
+[ ] Test on a narrow/mobile browser window.
+
+NOTE: Browser autoplay requires muted playback. Video sources must be direct HTTPS media URLs.
+
+UPLOAD PHOTO / VIDEO TEST
+[ ] On /moments, confirm the Upload button is visible when logged in.
+[ ] Click Upload and confirm it opens /feed#post-composer.
+[ ] Confirm the composer has separate Upload Photo and Upload Video controls.
+[ ] Select a JPG/PNG/WEBP file and confirm the preview appears.
+[ ] Remove the selection and confirm the preview clears.
+[ ] Select an MP4/MOV/WEBM file and confirm the video preview appears.
+[ ] Publish a photo with a caption and confirm it appears in Feed and Moments.
+[ ] Publish a video with a caption and confirm it appears in Moments.
+[ ] Confirm uploaded media is stored in Cloudinary and URLs are HTTPS.
+[ ] Confirm unsupported formats and files above the size limit are rejected.
+[ ] Confirm the existing direct HTTPS media URL option still works.

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ u.display_name }} · Gather World{% endblock %}
+{% block body_class %}profile-page{% endblock %}
+{% block content %}
+<section class="profile-cover image-slot image-slot--profile"><span class="profile-cover-label">GATHER WORLD MEMBER</span></section>
+<section class="profile-overview panel-card">
+  <img class="profile-avatar avatar-img" src="{{ u.avatar_url or url_for('static', filename='images/profile_avatars/' ~ u.avatar_preset) }}" alt="{{ u.display_name }} display picture" loading="lazy decoding="async"
+  <div class="profile-main"><span class="section-kicker">COMMUNITY PROFILE</span><h1>{{ u.display_name }}</h1><p class="profile-handle">@{{ u.username }}</p><p>{{ u.bio or 'This member has not added a bio yet.' }}</p><div class="profile-stats"><a href="{{ url_for('connection_list',username=u.username) }}">{{ u.followers }} <span>followers</span></a><span>{{ u.following }} <span>following</span></span></div></div>
+  <div class="profile-controls">
+    {% if current_user and current_user.id != u.id %}
+      <form method="post" action="{{ url_for('follow',username=u.username) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" type="submit">{{ "Unfollow" if following else "Follow" }}</button></form>
+      <a class="btn btn-secondary" href="{{ url_for('message_new', to=u.username) }}">Message</a>
+      <form method="post" action="{{ url_for('toggle_block',username=u.username) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn btn-secondary" type="submit">Block / Unblock</button></form>
+      <form method="post" action="{{ url_for('report_user',username=u.username) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="reason" value="other"><button class="quiet-action" type="submit">Report member</button></form>
+    {% elif current_user and current_user.id == u.id %}
+      <a class="btn" href="{{ url_for('edit_profile') }}">Edit profile</a>
+    {% endif %}
+  </div>
+</section>
+<section class="section-heading"><div><span class="section-kicker">WHAT THEY HAVE SHARED</span><h2>Posts</h2></div></section>
+<div class="feed-list">
+{% for p in posts %}<article class="post-card"><p class="post-copy">{{ p.body }}</p>{% if p.media_url %}{% if p.media_type=='image' %}<img class="post-media" src="{{ p.media_url }}" alt="Post image" loading="lazy" decoding="async"{% elif p.media_type=='video' %}<video class="post-video-inline" src="{{ p.media_url }}" controls playsinline preload="metadata"></video>{% endif %}{% endif %}<div class="post-meta"><span>{{ p.likes }} likes</span><span>{{ p.comments }} comments</span></div><div class="post-actions phase3-actions">{% if current_user %}<form method="post" action="{{ url_for('like',pid=p.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">{{ '♥ Liked' if p.liked else '♡ Like' }}</button></form><form method="post" action="{{ url_for('toggle_bookmark',pid=p.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">{{ '▣ Saved' if p.bookmarked else '▢ Save' }}</button></form>{% if current_user.id != p.user_id %}<form method="post" action="{{ url_for('repost',pid=p.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">↻ Repost</button></form>{% endif %}{% endif %}<a class="quiet-action" href="{{ url_for('post_detail',pid=p.id) }}">Comment / view</a><button class="quiet-action share-copy" type="button" data-copy-url="{{ url_for('post_detail',pid=p.id,_external=True) }}">↗ Share</button></div></article>
+{% else %}<div class="empty-state"><h2>No posts yet</h2><p>When this member shares something, it will appear here.</p></div>{% endfor %}
+</div>
+{% endblock %}

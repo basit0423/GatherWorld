@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Gather Shopping · Gather World{% endblock %}
+{% block content %}
+<section class="shop11-wrap">
+  <header class="shop11-hero">
+    <div><span class="section-kicker">GATHER WORLD · SHOPPING</span><h1>Discover. Compare. Find your next favourite.</h1><p>Explore products from approved partner retailers. When you choose to buy, you'll complete checkout on the retailer's website. Gather World may earn a commission from qualifying purchases.</p>
+      <div class="shop11-hero-actions"><a class="btn" href="{{ url_for('shop_deals') }}">Explore deals</a><a class="btn btn-secondary" href="{{ url_for('affiliate_partners_public') }}">Our partners</a></div>
+    </div>
+    <div class="shop11-quick-links"><a href="{{ url_for('shop_cart') }}">🛒 Shopping cart</a><a href="{{ url_for('shop_compare') }}">⇄ Compare products</a>{% if current_user %}<a href="{{ url_for('shop_wishlist') }}">♡ Wishlist</a><a href="{{ url_for('shop_price_alerts') }}">◷ Price alerts</a>{% endif %}<a href="{{ url_for('shop_recently_viewed') }}">◷ Recently viewed</a></div>
+  </header>
+  <section class="shop11-toolbar">
+    <form method="get" action="{{ url_for('shop_home') }}" class="shop11-search"><input name="q" value="{{ q }}" placeholder="Search products, categories or retailers" aria-label="Search products"><select name="category" aria-label="Category"><option value="">All categories</option>{% for item in shop_categories %}<option value="{{ item }}" {% if category==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select><select name="sort" aria-label="Sort products"><option value="newest" {% if sort=='newest' %}selected{% endif %}>Newest</option><option value="price_low" {% if sort=='price_low' %}selected{% endif %}>Price: low to high</option><option value="price_high" {% if sort=='price_high' %}selected{% endif %}>Price: high to low</option><option value="popular" {% if sort=='popular' %}selected{% endif %}>Popular</option></select><button class="btn" type="submit">Search</button></form>
+    <div class="shop11-pills">{% for item in shop_categories %}<a class="shop11-pill {% if category==item %}active{% endif %}" href="{{ url_for('shop_home',category=item) }}">{{ item }}</a>{% endfor %}</div>
+  </section>
+  <section class="shop11-section-head"><div><span class="section-kicker">CURATED FINDS</span><h2>Products from our partners</h2><p>Listings appear only after a retailer is approved and a product-specific HTTPS tracking link is configured.</p></div><span class="shop11-count">{{ products|length }} products</span></section>
+  {% if products %}<div class="shop11-grid">{% for product in products %}{% include "shop_product_card.html" %}{% endfor %}</div>
+  {% else %}<section class="shop11-empty"><div class="shop11-empty-icon">◈</div><h2>Our shopping shelves are being prepared</h2><p>Daraz, Amazon and eBay are our initial partner targets. Product listings will appear here after the relevant programme approves Gather World and authorized product links are added.</p><a href="{{ url_for('affiliate_partners_public') }}" class="btn btn-secondary">View partner updates</a></section>{% endif %}
+  <p class="shop11-disclosure">Affiliate disclosure: Gather World may earn a commission when you follow an approved partner link and complete a qualifying purchase. The retailer sets the price, processes payment and handles fulfilment.</p>
+</section>
+{% endblock %}

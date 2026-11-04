@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}
+{% block body_class %}login-page{% endblock %}Log in · Gather World{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <aside class="auth-showcase login-showcase">
+        <span class="eyebrow">WELCOME BACK</span>
+        <div class="showcase-art image-slot image-slot--auth" aria-hidden="true"></div>
+        <h1>Your world is waiting.</h1>
+        <p>Pick up where you left off. Catch up with people, conversations and ideas that matter.</p>
+        <div class="showcase-tags"><span>GOOD PEOPLE</span><span>GOOD IDEAS</span></div>
+    </aside>
+    <section class="auth-card auth-card--compact">
+        <div class="section-kicker">MEMBER ACCESS</div>
+        <h2>Welcome back</h2>
+        <p class="muted">Log in to continue to Gather World.</p>
+        <form method="post" class="form-stack"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label>Username or email<input name="identity" autocomplete="username" placeholder="Your username or email" required></label>
+            <label>Password<input type="password" name="password" autocomplete="current-password" placeholder="Your password" required></label>
+            <div class="form-aside"><a href="{{ url_for('forgot_password') }}">Forgot password?</a></div>
+            <button class="btn btn-wide" type="submit">Log in <span>→</span></button>
+        </form>
+        <p class="auth-switch">New to Gather? <a href="{{ url_for('register') }}">Create an account</a></p>
+        <a class="subtle-home-link" href="{{ url_for('home') }}">← Return to Home</a>
+    </section>
+</section>
+{% endblock %}

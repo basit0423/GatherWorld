@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Gather AI · Gather World{% endblock %}
+{% block content %}
+<section class="phase79-wrap">
+  <header class="panel-card phase79-hero"><span class="section-kicker">PHASE 7 · YOUR CREATIVE ASSISTANT</span><h1>Meet Gather AI.</h1><p>Ask questions, brainstorm, plan projects or get help writing. Your chats are private to your Gather World account.</p></header>
+  <div class="ai-layout">
+    <aside class="panel-card ai-sidebar"><form method="post" action="{{ url_for('ai_new_conversation') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn ai-new-chat" type="submit">＋ New conversation</button></form><h2>Recent conversations</h2><nav class="ai-history">{% for item in conversations %}<a class="{{ 'active' if conversation and item.id==conversation.id else '' }}" href="{{ url_for('ai_conversation',conversation_id=item.id) }}">{{ item.title }}</a>{% else %}<p class="muted">Your conversations will appear here.</p>{% endfor %}</nav><p class="ai-privacy-note">Only you can open or delete your saved chats. Messages you send are processed by Google Gemini. Do not enter passwords, API keys or payment secrets.</p></aside>
+    <section class="panel-card ai-chat-panel">
+      <div class="ai-chat-top"><h2>{{ conversation.title if conversation else 'Start a conversation' }}</h2>{% if conversation %}<form method="post" action="{{ url_for('ai_delete_conversation',conversation_id=conversation.id) }}" onsubmit="return confirm('Delete this AI conversation?')"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="quiet-action" type="submit">Delete chat</button></form>{% endif %}</div>
+      {% if conversation %}<div class="ai-messages" id="ai-messages">{% for message in messages %}<article class="ai-message {{ message.role }}">{{ message.content }}</article>{% else %}<div class="ai-empty"><div><span class="ai-empty-mark">✦</span><h2>What would you like to explore?</h2><p>Ask Gather AI anything you are working on.</p></div></div>{% endfor %}</div>
+        <form class="ai-compose" method="post" action="{{ url_for('ai_send_message',conversation_id=conversation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><textarea name="message" maxlength="2500" required placeholder="Message Gather AI…" aria-label="Message Gather AI"></textarea><button class="btn" type="submit">Send ↗</button></form>
+      {% else %}<div class="ai-empty"><div><span class="ai-empty-mark">✦</span><h2>Your ideas start here.</h2><p>Create a conversation to chat with Gather AI, powered by Gemini.</p><form method="post" action="{{ url_for('ai_new_conversation') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" type="submit">Start chatting</button></form></div></div>{% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}
