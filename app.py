@@ -4,12 +4,31 @@ import urllib.request,urllib.error,urllib.parse
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 from functools import wraps
-from flask import Flask,render_template,request,redirect,url_for,session,flash,jsonify,abort
+from flask import Flask,render_template,request,redirect,url_for,session,flash,jsonify,abort,Response
 from dotenv import load_dotenv
 import psycopg
 from psycopg.rows import dict_row
 from werkzeug.security import generate_password_hash,check_password_hash
 load_dotenv()
+PUBLIC_BASE_URL=os.getenv("PUBLIC_BASE_URL", "https://gathercommunity.me").strip().rstrip("/") or "https://gathercommunity.me"
+ADS_TXT_CONTENT="google.com, pub-8051256465850153, DIRECT, f08c47fec0942fa0\n"
+PUBLIC_SITEMAP_PATHS=(
+    "/",
+    "/explore",
+    "/search",
+    "/members",
+    "/communities",
+    "/shop",
+    "/partners",
+    "/services",
+    "/food",
+    "/travel",
+    "/learn",
+    "/careers",
+    "/events",
+    "/creators",
+    "/businesses",
+)
 app=Flask(__name__)
 app.config.update(
     SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "dev-only-change-me"),
@@ -568,12 +587,75 @@ def ctx():
         return {"current_user": account, "avatar_presets": AVATAR_PRESETS,
                 "current_user_is_admin": is_admin(account), "admin_usernames": ADMIN_USERNAMES,
                 "admin_emails": ADMIN_EMAILS, "csrf_token": csrf_token,
-                "unread_notifications": unread_notifications, "unread_messages": unread_messages}
+                "unread_notifications": unread_notifications, "unread_messages": unread_messages,
+                "canonical_url": f"{PUBLIC_BASE_URL}{request.path}"}
     except Exception:
         return {"current_user": None, "avatar_presets": AVATAR_PRESETS,
                 "current_user_is_admin": False, "admin_usernames": ADMIN_USERNAMES,
                 "admin_emails": ADMIN_EMAILS, "csrf_token": csrf_token,
-                "unread_notifications": 0, "unread_messages": 0}
+                "unread_notifications": 0, "unread_messages": 0,
+                "canonical_url": f"{PUBLIC_BASE_URL}{request.path}"}
+
+@app.route("/ads.txt")
+def ads_txt():
+    """Publish the site's AdSense seller declaration at the required root URL."""
+    return Response(ADS_TXT_CONTENT, mimetype="text/plain; charset=utf-8")
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    """Expose crawler guidance using this deployment's canonical domain."""
+    body = "\n".join((
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin",
+        "Disallow: /health",
+        "Disallow: /login",
+        "Disallow: /register",
+        "Disallow: /verify-email",
+        "Disallow: /forgot-password",
+        "Disallow: /reset-password/",
+        "Disallow: /profile/edit",
+        "Disallow: /messages",
+        "Disallow: /notifications",
+        "Disallow: /saved",
+        "Disallow: /blocked",
+        "Disallow: /ai",
+        "Disallow: /my-listings",
+        "Disallow: /creator/dashboard",
+        "Disallow: /creator/settings",
+        "Disallow: /shop/cart",
+        "Disallow: /shop/wishlist",
+        "Disallow: /shop/price-alerts",
+        "Disallow: /shop/recently-viewed",
+        "Disallow: /shop/out/",
+        "Disallow: /services/create",
+        "Disallow: /food/create",
+        "Disallow: /travel/create",
+        "Disallow: /learn/create",
+        "Disallow: /careers/post",
+        "Disallow: /events/create",
+        f"Sitemap: {PUBLIC_BASE_URL}/sitemap.xml",
+        "",
+    ))
+    return Response(body, mimetype="text/plain; charset=utf-8")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    """Generate a domain-correct XML sitemap containing public directory pages."""
+    urls = "\n".join(
+        f"  <url><loc>{PUBLIC_BASE_URL}{path}</loc></url>"
+        for path in PUBLIC_SITEMAP_PATHS
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{urls}\n"
+        "</urlset>\n"
+    )
+    return Response(xml, mimetype="application/xml; charset=utf-8")
+
 
 @app.route("/")
 def home():
