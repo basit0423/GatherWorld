@@ -81,3 +81,7 @@ Not performed here:
 
 Run the included PHASE12_17_LOCAL_TEST_CHECKLIST.txt on your PC before moving
 on to Phase 18 or deploying anything publicly.
+
+## Food & Travel search discovery
+
+See `README_FOOD_TRAVEL_SEARCH_UPGRADE.md` for restaurant review pages, destination guides, trip budget estimation, local area pages, sitemap behavior and the additive database migration that must be applied before deployment.

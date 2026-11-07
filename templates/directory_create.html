@@ -16,7 +16,31 @@
         <label>{{ 'Price or starting rate (optional)' if kind=='service' else ('Price / offer label (optional)' if kind=='food' else ('Salary / compensation (optional)' if kind=='job' else 'Price or access details (optional)')) }}<input name="price_label" maxlength="80" placeholder="e.g. Free, From $25, Negotiable"></label>
         <label class="gw-span-two">{{ {'service':'Portfolio or service website (HTTPS)','food':'Menu or official ordering website (HTTPS)','travel':'Official booking or information website (HTTPS)','education':'Course or learning resource website (HTTPS)','job':'Employer application page (HTTPS)','event':'Official event website or registration page (HTTPS)'}[kind] }}<input name="external_url" type="url" placeholder="https://example.com"></label>
         <label>Public contact email<input name="contact_email" type="email" maxlength="255" placeholder="contact@example.com"></label>
+        <label>Public phone (optional)<input name="contact_phone" type="tel" maxlength="40" placeholder="Business phone with country code"></label>
         <label>Image URL (optional, HTTPS)<input name="image_url" type="url" placeholder="https://..."></label>
+        <label class="gw-span-two">Information source URL (optional, HTTPS)<input name="info_source_url" type="url" placeholder="Official website, tourism authority or menu source"><small>Link to the source used for factual details. Do not use a page you do not have permission to reference.</small></label>
+        {% if kind=='food' %}
+        <div class="gw-form-subsection gw-span-two"><h2>Restaurant information</h2><p>These details help visitors assess whether the place suits their needs. Enter only information you can support.</p></div>
+        <label>Cuisine / food style<input name="food_cuisine" maxlength="120" placeholder="e.g. Pakistani, Chinese, bakery, café"></label>
+        <label>Typical spend per person<input name="food_average_cost" maxlength="120" placeholder="e.g. PKR 1,200–1,800; confirm current menu"></label>
+        <label class="gw-span-two">Opening hours<textarea name="food_opening_hours" rows="3" maxlength="1500" placeholder="Mon–Fri 12:00–22:00; Saturday ... Include timezone or note if not confirmed."></textarea></label>
+        <label class="gw-span-two">Menu highlights<textarea name="food_menu_highlights" rows="4" maxlength="2000" placeholder="List notable dishes or menu sections and indicate whether details came from the official menu."></textarea></label>
+        <label class="gw-span-two">Who might this place suit?<textarea name="food_good_for" rows="3" maxlength="1000" placeholder="e.g. quick lunch, family meal, coffee and study, group dining. Avoid unsupported claims."></textarea></label>
+        <label class="gw-span-two">Dietary, allergy and access notes<textarea name="food_dietary_notes" rows="3" maxlength="1000" placeholder="Only state confirmed options. Tell visitors to confirm allergen handling directly with the restaurant."></textarea></label>
+        {% elif kind=='travel' %}
+        <div class="gw-form-subsection gw-span-two"><h2>Destination and trip planning information</h2><p>Share local details and realistic estimates. Budgets are per person per day unless clearly explained otherwise.</p></div>
+        <label>Best time / season to visit<input name="travel_best_season" maxlength="160" placeholder="e.g. Spring and autumn; explain seasonal limits"></label>
+        <label>Suggested trip duration (days)<input name="travel_duration_days" type="number" min="1" max="365" placeholder="e.g. 3"></label>
+        <label class="gw-span-two">How to get there<textarea name="travel_how_to_get_there" rows="4" maxlength="2500" placeholder="Access routes, nearest transport hubs and local transport. Include a source and date for changing details."></textarea></label>
+        <label class="gw-span-two">Main attractions and things to do<textarea name="travel_attractions" rows="4" maxlength="3000" placeholder="Describe attractions, approximate time needed, access notes and what makes each worth considering."></textarea></label>
+        <label>Minimum daily budget per person<input name="travel_daily_budget_min" type="number" min="0" max="100000000" placeholder="e.g. 5000"></label>
+        <label>Maximum daily budget per person<input name="travel_daily_budget_max" type="number" min="0" max="100000000" placeholder="e.g. 12000"></label>
+        <label>Budget currency<input name="travel_budget_currency" maxlength="3" value="PKR" placeholder="PKR"></label>
+        <label class="gw-span-two">Budget breakdown<textarea name="travel_budget_breakdown" rows="4" maxlength="2500" placeholder="Separate accommodation, meals, local transport, entry fees and activities. State what's included and excluded."></textarea></label>
+        <label class="gw-span-two">Sample itinerary<textarea name="travel_sample_itinerary" rows="5" maxlength="3500" placeholder="Day 1: ... Include realistic travel times only when verified."></textarea></label>
+        <label class="gw-span-two">Local tips<textarea name="travel_local_tips" rows="3" maxlength="2000" placeholder="Local etiquette, connectivity, cash, transport and useful visitor tips."></textarea></label>
+        <label class="gw-span-two">Safety, access and seasonal notes<textarea name="travel_safety_notes" rows="3" maxlength="2000" placeholder="Weather, road closures, permits, accessibility and official advisories. Keep information factual and dated."></textarea></label>
+        {% endif %}
         {% if kind=='event' %}
         <label>Event starts <span>*</span><input type="datetime-local" name="event_starts_at" required></label>
         <label>Event ends (optional)<input type="datetime-local" name="event_ends_at"></label>

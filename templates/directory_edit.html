@@ -16,7 +16,31 @@
         <label>Price / rate / offer label<input name="price_label" maxlength="80" value="{{ entry.price_label }}"></label>
         <label class="gw-span-two">Official website (HTTPS)<input name="external_url" type="url" value="{{ entry.external_url }}"></label>
         <label>Public contact email<input name="contact_email" type="email" maxlength="255" value="{{ entry.contact_email }}"></label>
+        <label>Public phone<input name="contact_phone" type="tel" maxlength="40" value="{{ entry.contact_phone or '' }}"></label>
         <label>Image URL (HTTPS)<input name="image_url" type="url" value="{{ entry.image_url }}"></label>
+        <label class="gw-span-two">Information source URL (HTTPS)<input name="info_source_url" type="url" value="{{ entry.info_source_url or '' }}"></label>
+        {% if kind=='food' %}
+        <div class="gw-form-subsection gw-span-two"><h2>Restaurant details</h2><p>Keep prices, hours and menu notes current. Reviewers' opinions are collected separately.</p></div>
+        <label>Cuisine / food style<input name="food_cuisine" maxlength="120" value="{{ entry.food_cuisine or '' }}"></label>
+        <label>Typical spend per person<input name="food_average_cost" maxlength="120" value="{{ entry.food_average_cost or '' }}"></label>
+        <label class="gw-span-two">Opening hours<textarea name="food_opening_hours" rows="3" maxlength="1500">{{ entry.food_opening_hours or '' }}</textarea></label>
+        <label class="gw-span-two">Menu highlights<textarea name="food_menu_highlights" rows="4" maxlength="2000">{{ entry.food_menu_highlights or '' }}</textarea></label>
+        <label class="gw-span-two">Who might this place suit?<textarea name="food_good_for" rows="3" maxlength="1000">{{ entry.food_good_for or '' }}</textarea></label>
+        <label class="gw-span-two">Dietary, allergy and access notes<textarea name="food_dietary_notes" rows="3" maxlength="1000">{{ entry.food_dietary_notes or '' }}</textarea></label>
+        {% elif kind=='travel' %}
+        <div class="gw-form-subsection gw-span-two"><h2>Destination and trip details</h2><p>State your currency and explain budget inclusions. Costs are estimates, not live quotes.</p></div>
+        <label>Best time / season<input name="travel_best_season" maxlength="160" value="{{ entry.travel_best_season or '' }}"></label>
+        <label>Suggested trip duration (days)<input name="travel_duration_days" type="number" min="1" max="365" value="{{ entry.travel_duration_days or '' }}"></label>
+        <label class="gw-span-two">How to get there<textarea name="travel_how_to_get_there" rows="4" maxlength="2500">{{ entry.travel_how_to_get_there or '' }}</textarea></label>
+        <label class="gw-span-two">Attractions and things to do<textarea name="travel_attractions" rows="4" maxlength="3000">{{ entry.travel_attractions or '' }}</textarea></label>
+        <label>Minimum daily budget per person<input name="travel_daily_budget_min" type="number" min="0" max="100000000" value="{{ entry.travel_daily_budget_min if entry.travel_daily_budget_min is not none else '' }}"></label>
+        <label>Maximum daily budget per person<input name="travel_daily_budget_max" type="number" min="0" max="100000000" value="{{ entry.travel_daily_budget_max if entry.travel_daily_budget_max is not none else '' }}"></label>
+        <label>Budget currency<input name="travel_budget_currency" maxlength="3" value="{{ entry.travel_budget_currency or 'PKR' }}"></label>
+        <label class="gw-span-two">Budget breakdown<textarea name="travel_budget_breakdown" rows="4" maxlength="2500">{{ entry.travel_budget_breakdown or '' }}</textarea></label>
+        <label class="gw-span-two">Sample itinerary<textarea name="travel_sample_itinerary" rows="5" maxlength="3500">{{ entry.travel_sample_itinerary or '' }}</textarea></label>
+        <label class="gw-span-two">Local tips<textarea name="travel_local_tips" rows="3" maxlength="2000">{{ entry.travel_local_tips or '' }}</textarea></label>
+        <label class="gw-span-two">Safety, access and seasonal notes<textarea name="travel_safety_notes" rows="3" maxlength="2000">{{ entry.travel_safety_notes or '' }}</textarea></label>
+        {% endif %}
         {% if kind=='event' %}<label>Event starts (UTC)<input type="datetime-local" name="event_starts_at" value="{{ entry.event_starts_at.strftime('%Y-%m-%dT%H:%M') if entry.event_starts_at else '' }}" required></label><label>Event ends (UTC)<input type="datetime-local" name="event_ends_at" value="{{ entry.event_ends_at.strftime('%Y-%m-%dT%H:%M') if entry.event_ends_at else '' }}"></label>{% endif %}
       </div>
       <div class="gw-directory-form-notice"><strong>Keep information accurate</strong><p>Only publish information you are authorized to share. Listings remain community-submitted and are not independently verified by Gather World.</p></div>

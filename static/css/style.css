@@ -2635,3 +2635,68 @@ body:has(.gather-hero) .gather-bottom-label {
 .gw-service-inquiry p { margin:12px 0 0; color:var(--text); white-space:pre-wrap; }
 :root[data-theme="light"] .gw-service-inquiry { background:#fff; border-color:#dfe6ef; }
 :root[data-theme="light"] .gw-inquiry-by strong,:root[data-theme="light"] .gw-service-inquiry p { color:#20324b; }
+
+
+/* Search-oriented Food & Travel detail content */
+.gw-directory-hero-extra { max-width:760px; margin:12px 0 0; color:var(--muted); line-height:1.65; }
+.gw-search-guide { margin:34px 0 18px; padding:clamp(20px,3vw,32px); border:1px solid var(--border); border-radius:18px; background:var(--surface); }
+.gw-search-guide h2 { margin:8px 0 10px; font-size:clamp(1.35rem,3vw,1.9rem); }
+.gw-search-guide>p,.gw-search-guide-grid p { color:var(--muted); line-height:1.7; }
+.gw-search-guide-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px; }
+.gw-search-guide-grid article { padding:16px; border:1px solid var(--border); border-radius:13px; background:var(--bg-soft); }
+.gw-search-guide-grid h3 { margin:0 0 8px; font-size:15px; }
+.gw-search-guide-grid p { margin:0; font-size:13px; }
+.gw-breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; color:var(--muted); font-size:12px; }
+.gw-breadcrumbs a { color:var(--secondary); text-decoration:none; }
+.gw-seo-readiness-note { margin:12px 0; padding:12px 15px; border:1px solid var(--border); border-radius:12px; color:var(--muted); background:var(--bg-soft); font-size:12px; }
+.gw-detail-info-section { margin:24px 0 0; padding-top:20px; border-top:1px solid var(--border); }
+.gw-detail-info-section h2 { margin:7px 0 12px; font-size:clamp(1.15rem,2.5vw,1.55rem); }
+.gw-detail-info-section p,.gw-detail-checklist { color:var(--muted); line-height:1.75; }
+.gw-detail-checklist { padding-left:20px; }
+.gw-detail-checklist li { margin:7px 0; }
+.gw-preline { white-space:pre-line; line-height:1.7; }
+.gw-fact-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.gw-fact-grid>div { padding:13px 15px; border:1px solid var(--border); border-radius:12px; background:var(--bg-soft); }
+.gw-fact-grid small,.gw-fact-grid strong { display:block; }
+.gw-fact-grid small { margin-bottom:5px; color:var(--muted); font-size:11px; }
+.gw-fact-grid strong { color:var(--text); font-size:13px; overflow-wrap:anywhere; }
+.gw-rating-summary { display:inline-flex; align-items:center; gap:9px; margin:8px 0; padding:8px 12px; border:1px solid var(--border); border-radius:999px; background:var(--bg-soft); }
+.gw-rating-summary strong,.gw-rating-large { color:#e5a52e; }
+.gw-rating-summary span { color:var(--muted); font-size:12px; }
+.gw-travel-budget { margin:24px 0 0; padding:20px; border:1px solid var(--border); border-radius:16px; background:var(--bg-soft); }
+.gw-travel-budget h2 { margin:7px 0 4px; }
+.gw-budget-range { margin:10px 0; font-size:clamp(1.5rem,4vw,2.2rem); font-weight:850; color:var(--text); }
+.gw-budget-range small { color:var(--muted); font-size:12px; font-weight:600; }
+.gw-travel-budget p { color:var(--muted); line-height:1.65; }
+.gw-small-note,.gw-source-line { color:var(--muted); font-size:11px; line-height:1.6; }
+.gw-source-line a { color:var(--secondary); }
+.gw-rating-large { display:grid; gap:2px; justify-items:end; font-size:25px; font-weight:850; }
+.gw-rating-large small { color:var(--muted); font-size:11px; font-weight:600; }
+.gw-review-section { margin:32px 0 10px; padding:clamp(18px,3vw,28px); border:1px solid var(--border); border-radius:18px; background:var(--surface); }
+.gw-review-section .gw-directory-section-heading { margin-top:0; }
+.gw-review-section .gw-directory-section-heading p { color:var(--muted); font-size:12px; }
+.gw-review-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.gw-review-card { padding:15px; border:1px solid var(--border); border-radius:13px; background:var(--bg-soft); }
+.gw-review-card h3 { margin:8px 0; font-size:15px; }
+.gw-review-card p { color:var(--text); white-space:pre-line; line-height:1.65; font-size:13px; }
+.gw-review-card small { color:var(--muted); }
+.gw-review-rating { color:#e5a52e; letter-spacing:.04em; }
+.gw-review-rating span { color:var(--muted); font-size:11px; }
+.gw-review-form { display:grid; gap:12px; max-width:720px; margin-top:20px; padding-top:18px; border-top:1px solid var(--border); }
+.gw-review-form h3 { margin:0; }
+.gw-review-form label { display:grid; gap:6px; font-size:13px; font-weight:700; }
+.gw-review-form input,.gw-review-form select,.gw-review-form textarea { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:10px; background:var(--bg-soft); color:var(--text); font:inherit; }
+.gw-review-status,.gw-review-login { color:var(--muted); font-size:13px; }
+.gw-form-subsection { margin:8px 0 0; padding:14px 16px; border-radius:12px; background:var(--bg-soft); border:1px solid var(--border); }
+.gw-form-subsection h2 { margin:0 0 5px; font-size:16px; }
+.gw-form-subsection p { margin:0; color:var(--muted); font-size:12px; line-height:1.55; }
+@media(max-width:720px) { .gw-search-guide-grid,.gw-review-grid { grid-template-columns:1fr; } .gw-fact-grid { grid-template-columns:1fr; } .gw-rating-large { justify-items:start; } }
+.gw-directory-card-meta a { color:var(--secondary); text-decoration:none; }
+.gw-directory-card-meta a:hover { text-decoration:underline; }
+.gw-budget-calculator { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:16px 0; }
+.gw-budget-calculator label { display:grid; gap:6px; color:var(--muted); font-size:12px; font-weight:700; }
+.gw-budget-calculator input { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--text); font:inherit; }
+.gw-budget-result { grid-column:1/-1; display:grid; gap:5px; padding:14px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+.gw-budget-result small,.gw-budget-result span { color:var(--muted); font-size:11px; }
+.gw-budget-result strong { color:var(--text); font-size:clamp(1.2rem,3vw,1.7rem); }
+@media(max-width:620px) { .gw-budget-calculator { grid-template-columns:1fr; } }

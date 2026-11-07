@@ -23,7 +23,9 @@ Disallow: /shop/recently-viewed
 Disallow: /shop/out/
 Disallow: /services/create
 Disallow: /food/create
+Disallow: /food/*/review
 Disallow: /travel/create
+Disallow: /travel/*/review
 Disallow: /learn/create
 Disallow: /careers/post
 Disallow: /events/create

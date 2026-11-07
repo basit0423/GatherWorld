@@ -1,0 +1,35 @@
+GATHER WORLD — FOOD & TRAVEL SEARCH DISCOVERY TESTS
+
+DATABASE MIGRATION
+[ ] Confirm .env DATABASE_URL points to the same Neon database as new Vercel project.
+[ ] Run: .venv\Scripts\python.exe -c "import app; app.init_db(); print('Database migration complete')"
+[ ] Confirm no existing directory entries were removed.
+
+FOOD / RESTAURANT
+[ ] Create a restaurant listing with location, detailed description, cuisine, menu highlights, typical spend or hours, and an official/provider source URL.
+[ ] Confirm detail page title mentions the restaurant and review intent.
+[ ] Confirm the details page shows menu, price, hours, source and contact data entered.
+[ ] Submit a member review using another account.
+[ ] Confirm pending review is hidden from public view and not in rating/schema.
+[ ] Approve it at /admin/directory-reviews and confirm it appears publicly.
+[ ] Confirm community rating uses approved member reviews only.
+[ ] Confirm a restaurant's own owner account cannot review its own listing.
+
+TRAVEL / DESTINATIONS
+[ ] Create a destination with location, description, best season, attractions and source URL.
+[ ] Add access information, budget range, currency, budget breakdown, itinerary, local tips and safety notes.
+[ ] Confirm the trip calculator updates when days and traveller count change.
+[ ] Confirm displayed budget is clearly labelled as an estimate, not a live quote.
+
+LOCATION LANDING PAGES
+[ ] Add at least two search-ready food entries in the same exact location and test /food/in/<location-slug>.
+[ ] Add at least two search-ready travel entries in the same exact location and test /travel/in/<location-slug>.
+[ ] Confirm location links appear on directory cards and detail pages.
+
+SEO
+[ ] Confirm incomplete Food/Travel detail pages have noindex,follow.
+[ ] Confirm complete detail pages have index,follow and truthful JSON-LD.
+[ ] Confirm dynamic /sitemap.xml contains completed listing and qualifying area-page URLs.
+[ ] Confirm robots.txt points to https://gathercommunity.me/sitemap.xml.
+[ ] Test representative pages in Google Rich Results Test and URL Inspection.
+[ ] Submit https://gathercommunity.me/sitemap.xml in the gathercommunity.me Search Console property.

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block meta_robots %}{{ 'index,follow' if seo_indexable else 'noindex,follow' }}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
+{% block content %}
+<section class="gw-directory-page gw-location-page">
+  <nav class="gw-breadcrumbs" aria-label="Breadcrumb"><a href="{{ url_for('home') }}">Home</a><span>›</span><a href="{{ url_for(module.directory_endpoint) }}">{{ module.title }}</a><span>›</span><span aria-current="page">{{ location_label }}</span></nav>
+  {% if not seo_indexable %}<div class="gw-seo-readiness-note">This area page is available to visitors but is not yet included for search indexing. It will be eligible after at least two listings in this area contain complete, sourced information.</div>{% endif %}
+  <header class="gw-directory-hero">
+    <div class="gw-directory-hero-copy"><span class="section-kicker">GATHER WORLD · LOCAL GUIDE</span>
+      <h1>{{ 'Restaurants and Food in ' if kind=='food' else 'Travel Guides for ' }}{{ location_label }}</h1>
+      {% if kind=='food' %}<p>Explore restaurants and food places in {{ location_label }}. Compare cuisine, menu information, typical spend, opening hours and moderated community feedback where available.</p>
+      {% else %}<p>Plan a visit to {{ location_label }} with destination information, places to explore, suggested seasons, access details and budget guidance where contributors have supplied it.</p>{% endif %}
+      <div class="gw-directory-hero-actions"><a class="btn btn-secondary" href="{{ url_for(module.directory_endpoint) }}">Browse all {{ module.title }}</a>{% if current_user %}<a class="btn" href="{{ url_for(module.create_endpoint) }}">＋ Add a listing</a>{% endif %}</div>
+    </div>
+    <div class="gw-directory-hero-note"><span class="gw-directory-note-icon">✦</span><strong>{{ entries|length }} local listing{{ '' if entries|length==1 else 's' }}</strong><span>{{ ready_count }} currently contain enough details for search indexing. Always confirm changing information with its provider.</span></div>
+  </header>
+  {% if kind=='food' %}
+  <section class="gw-search-guide"><span class="section-kicker">RESTAURANT RESEARCH</span><h2>How to choose a restaurant in {{ location_label }}</h2><p>Compare the type of food, menu details, expected spend, opening hours and location. Read approved community reviews in context, and check the latest menu and prices directly with each restaurant.</p><div class="gw-search-guide-grid"><article><h3>Food and menu</h3><p>Check cuisine, menu highlights, portion or serving information and any dietary or allergen questions with the restaurant.</p></article><article><h3>Budget and location</h3><p>Compare typical spend and travel distance. Confirm whether taxes, service charges or delivery fees are included.</p></article><article><h3>Community feedback</h3><p>Look at the number and dates of reviews, not just the average rating. A small sample may not represent every visit.</p></article></div></section>
+  {% else %}
+  <section class="gw-search-guide"><span class="section-kicker">DESTINATION RESEARCH</span><h2>Plan a trip to {{ location_label }}</h2><p>Start with the places you want to see, then compare the best season, travel time, accommodation, meals, local transport and activity costs. Budget estimates are planning guides, not live prices.</p><div class="gw-search-guide-grid"><article><h3>What to explore</h3><p>Review attractions, activity details, access conditions and how much time each stop may need.</p></article><article><h3>Estimate the budget</h3><p>Check the currency, per-person or group basis, trip length and whether travel to the region is included.</p></article><article><h3>Check current conditions</h3><p>Confirm road access, weather, opening times, permits and safety notices close to your travel dates.</p></article></div></section>
+  {% endif %}
+  <div class="gw-directory-section-heading"><div><span class="section-kicker">AREA RESULTS</span><h2>{{ 'Restaurants and local food' if kind=='food' else 'Destinations and travel resources' }} in {{ location_label }}</h2></div><span class="gw-directory-count">{{ entries|length }} listing{{ '' if entries|length==1 else 's' }}</span></div>
+  <div class="gw-directory-grid">
+    {% for entry in entries %}
+    <article class="gw-directory-card">
+      <a class="gw-directory-card-media" href="{{ url_for(module.detail_endpoint,slug=entry.slug) }}" aria-label="Open {{ entry.title }}">
+        {% if entry.image_url %}<img src="{{ entry.image_url }}" alt="{{ entry.title }}" loading="lazy" decoding="async">{% else %}<span class="gw-directory-initial">{{ entry.title[:1]|upper }}</span>{% endif %}
+        <span class="gw-directory-kind">{{ entry.category }}</span>
+      </a>
+      <div class="gw-directory-card-body"><div class="gw-directory-card-meta"><span>{{ entry.location }}</span>{% if kind=='food' and entry.food_cuisine %}<span>{{ entry.food_cuisine }}</span>{% endif %}{% if kind=='travel' and entry.travel_best_season %}<span>{{ entry.travel_best_season }}</span>{% endif %}</div>
+        <h3><a href="{{ url_for(module.detail_endpoint,slug=entry.slug) }}">{{ entry.title }}</a></h3><p>{{ entry.summary }}</p>
+        {% if kind=='food' and entry.food_average_cost %}<strong>{{ entry.food_average_cost }}</strong>{% elif kind=='travel' and entry.travel_daily_budget_min is not none and entry.travel_daily_budget_max is not none %}<strong>{{ entry.travel_budget_currency }} {{ '{:,}'.format(entry.travel_daily_budget_min) }}–{{ '{:,}'.format(entry.travel_daily_budget_max) }} per person/day</strong>{% endif %}
+        <div class="gw-directory-card-bottom"><a class="gw-text-link" href="{{ url_for(module.detail_endpoint,slug=entry.slug) }}">Read full guide →</a></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  <p class="gw-directory-disclaimer">Listings are community-submitted. Budgets, opening hours, availability and conditions may change. Check details with the provider or relevant official source before making decisions.</p>
+</section>
+{% endblock %}

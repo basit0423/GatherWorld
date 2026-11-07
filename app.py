@@ -449,6 +449,44 @@ def init_db():
         c.execute("CREATE INDEX IF NOT EXISTS gw_directory_kind_active_idx ON gw_directory_entries(entry_kind,is_active,created_at DESC)")
         c.execute("CREATE INDEX IF NOT EXISTS gw_directory_owner_idx ON gw_directory_entries(owner_id,created_at DESC)")
         c.execute("CREATE INDEX IF NOT EXISTS gw_directory_category_idx ON gw_directory_entries(entry_kind,category,is_active)")
+        # Food and travel enrichment fields. Additive only: existing listings are retained.
+        directory_columns = {
+            "contact_phone": "VARCHAR(40) NOT NULL DEFAULT ''",
+            "info_source_url": "TEXT NOT NULL DEFAULT ''",
+            "food_cuisine": "VARCHAR(120) NOT NULL DEFAULT ''",
+            "food_opening_hours": "TEXT NOT NULL DEFAULT ''",
+            "food_menu_highlights": "TEXT NOT NULL DEFAULT ''",
+            "food_good_for": "TEXT NOT NULL DEFAULT ''",
+            "food_dietary_notes": "TEXT NOT NULL DEFAULT ''",
+            "food_average_cost": "VARCHAR(120) NOT NULL DEFAULT ''",
+            "travel_best_season": "VARCHAR(160) NOT NULL DEFAULT ''",
+            "travel_how_to_get_there": "TEXT NOT NULL DEFAULT ''",
+            "travel_attractions": "TEXT NOT NULL DEFAULT ''",
+            "travel_daily_budget_min": "INTEGER",
+            "travel_daily_budget_max": "INTEGER",
+            "travel_budget_currency": "VARCHAR(8) NOT NULL DEFAULT 'PKR'",
+            "travel_duration_days": "INTEGER",
+            "travel_budget_breakdown": "TEXT NOT NULL DEFAULT ''",
+            "travel_sample_itinerary": "TEXT NOT NULL DEFAULT ''",
+            "travel_local_tips": "TEXT NOT NULL DEFAULT ''",
+            "travel_safety_notes": "TEXT NOT NULL DEFAULT ''",
+        }
+        for column_name, column_type in directory_columns.items():
+            c.execute(f"ALTER TABLE gw_directory_entries ADD COLUMN IF NOT EXISTS {column_name} {column_type}")
+        c.execute("""CREATE TABLE IF NOT EXISTS gw_directory_reviews(
+            id BIGSERIAL PRIMARY KEY,
+            entry_id BIGINT NOT NULL REFERENCES gw_directory_entries(id) ON DELETE CASCADE,
+            user_id BIGINT NOT NULL REFERENCES gw_users(id) ON DELETE CASCADE,
+            rating SMALLINT NOT NULL CHECK(rating BETWEEN 1 AND 5),
+            headline VARCHAR(120) NOT NULL DEFAULT '',
+            review_text VARCHAR(2000) NOT NULL,
+            status VARCHAR(12) NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')),
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE(entry_id,user_id)
+        )""")
+        c.execute("CREATE INDEX IF NOT EXISTS gw_directory_reviews_public_idx ON gw_directory_reviews(entry_id,status,created_at DESC)")
+        c.execute("CREATE INDEX IF NOT EXISTS gw_directory_reviews_moderation_idx ON gw_directory_reviews(status,created_at DESC)")
         c.execute("""CREATE TABLE IF NOT EXISTS gw_directory_event_rsvps(
             entry_id BIGINT NOT NULL REFERENCES gw_directory_entries(id) ON DELETE CASCADE,
             user_id BIGINT NOT NULL REFERENCES gw_users(id) ON DELETE CASCADE,
@@ -631,7 +669,9 @@ def robots_txt():
         "Disallow: /shop/out/",
         "Disallow: /services/create",
         "Disallow: /food/create",
+        "Disallow: /food/*/review",
         "Disallow: /travel/create",
+        "Disallow: /travel/*/review",
         "Disallow: /learn/create",
         "Disallow: /careers/post",
         "Disallow: /events/create",
@@ -643,17 +683,45 @@ def robots_txt():
 
 @app.route("/sitemap.xml")
 def sitemap_xml():
-    """Generate a domain-correct XML sitemap containing public directory pages."""
-    urls = "\n".join(
-        f"  <url><loc>{PUBLIC_BASE_URL}{path}</loc></url>"
-        for path in PUBLIC_SITEMAP_PATHS
-    )
-    xml = (
-        '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        f"{urls}\n"
-        "</urlset>\n"
-    )
+    """Generate a domain-correct sitemap with complete, public food and travel pages."""
+    from xml.sax.saxutils import escape
+    paths = list(PUBLIC_SITEMAP_PATHS)
+    try:
+        with db() as c:
+            rows = c.execute("""SELECT entry_kind,slug,updated_at,summary,description,location,
+                food_cuisine,food_menu_highlights,food_average_cost,food_opening_hours,
+                travel_best_season,travel_attractions,travel_daily_budget_min,travel_daily_budget_max,
+                travel_budget_breakdown,travel_sample_itinerary,info_source_url,external_url
+                FROM gw_directory_entries WHERE entry_kind IN ('food','travel') AND is_active=TRUE
+                ORDER BY updated_at DESC LIMIT 5000""").fetchall()
+        location_groups = {}
+        for row in rows:
+            description_len = len((row.get("description") or "").strip())
+            if row["entry_kind"] == "food":
+                ready = bool(row.get("location") and description_len >= 100 and
+                    (row.get("food_cuisine") or row.get("food_menu_highlights")) and
+                    (row.get("food_average_cost") or row.get("food_opening_hours")) and
+                    (row.get("info_source_url") or row.get("external_url")))
+            else:
+                ready = bool(row.get("location") and description_len >= 140 and
+                    row.get("travel_attractions") and row.get("travel_best_season") and
+                    (row.get("travel_budget_breakdown") or row.get("travel_sample_itinerary") or
+                     (row.get("travel_daily_budget_min") is not None and row.get("travel_daily_budget_max") is not None)) and
+                     (row.get("info_source_url") or row.get("external_url")))
+            if ready:
+                paths.append(f"/{row['entry_kind']}/{row['slug']}")
+                group_key = (row["entry_kind"], _directory_slug(row.get("location") or ""))
+                if group_key[1]:
+                    location_groups[group_key] = location_groups.get(group_key, 0) + 1
+        for (entry_kind, location_slug), count in location_groups.items():
+            if count >= 2:
+                paths.append(f"/{entry_kind}/in/{location_slug}")
+    except Exception:
+        app.logger.exception("Could not add food/travel details to sitemap")
+    urls = "\n".join(f"  <url><loc>{escape(PUBLIC_BASE_URL + path)}</loc></url>" for path in dict.fromkeys(paths))
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+           f"{urls}\n</urlset>\n")
     return Response(xml, mimetype="application/xml; charset=utf-8")
 
 
@@ -3033,7 +3101,69 @@ def _directory_list(kind):
               AND (%s='' OR e.category=%s)
             ORDER BY e.is_featured DESC, e.created_at DESC LIMIT 80""",
             (kind,q,pattern,pattern,pattern,pattern,pattern,category,category)).fetchall()
+    for row in rows:
+        row["location_slug"] = _directory_slug(row.get("location") or "")
     return render_template("directory_home.html", module=config, entries=rows, q=q, selected_category=category, kind=kind)
+
+
+def _directory_extra_form_values(kind):
+    """Read and validate food/travel detail fields without trusting client input."""
+    values = {"contact_phone": request.form.get("contact_phone", "").strip()[:40],
+              "info_source_url": optional_https_url(request.form.get("info_source_url", ""))}
+    if kind == "food":
+        values.update({
+            "food_cuisine": request.form.get("food_cuisine", "").strip()[:120],
+            "food_opening_hours": request.form.get("food_opening_hours", "").strip()[:1500],
+            "food_menu_highlights": request.form.get("food_menu_highlights", "").strip()[:2000],
+            "food_good_for": request.form.get("food_good_for", "").strip()[:1000],
+            "food_dietary_notes": request.form.get("food_dietary_notes", "").strip()[:1000],
+            "food_average_cost": request.form.get("food_average_cost", "").strip()[:120],
+        })
+    elif kind == "travel":
+        def optional_integer(name, maximum=100000000):
+            raw = request.form.get(name, "").strip()
+            if not raw:
+                return None
+            if not raw.isdigit() or int(raw) < 0 or int(raw) > maximum:
+                raise ValueError("Enter a valid non-negative number for the travel budget or duration fields.")
+            return int(raw)
+        values.update({
+            "travel_best_season": request.form.get("travel_best_season", "").strip()[:160],
+            "travel_how_to_get_there": request.form.get("travel_how_to_get_there", "").strip()[:2500],
+            "travel_attractions": request.form.get("travel_attractions", "").strip()[:3000],
+            "travel_daily_budget_min": optional_integer("travel_daily_budget_min"),
+            "travel_daily_budget_max": optional_integer("travel_daily_budget_max"),
+            "travel_budget_currency": (request.form.get("travel_budget_currency", "PKR").strip().upper() or "PKR")[:8],
+            "travel_duration_days": optional_integer("travel_duration_days", 365),
+            "travel_budget_breakdown": request.form.get("travel_budget_breakdown", "").strip()[:2500],
+            "travel_sample_itinerary": request.form.get("travel_sample_itinerary", "").strip()[:3500],
+            "travel_local_tips": request.form.get("travel_local_tips", "").strip()[:2000],
+            "travel_safety_notes": request.form.get("travel_safety_notes", "").strip()[:2000],
+        })
+        currency = values["travel_budget_currency"]
+        if not re.fullmatch(r"[A-Z]{3}", currency):
+            raise ValueError("Use a three-letter currency code, such as PKR, USD or EUR.")
+        low, high = values["travel_daily_budget_min"], values["travel_daily_budget_max"]
+        if low is not None and high is not None and high < low:
+            raise ValueError("The maximum daily budget must be greater than or equal to the minimum.")
+    return values
+
+
+def _directory_is_search_ready(entry, kind):
+    """Do not index thin community listings; index only useful, detailed pages."""
+    description_len = len((entry.get("description") or "").strip())
+    if kind == "food":
+        return bool(entry.get("location") and description_len >= 100 and
+                    (entry.get("food_cuisine") or entry.get("food_menu_highlights")) and
+                    (entry.get("food_average_cost") or entry.get("food_opening_hours")) and
+                    (entry.get("info_source_url") or entry.get("external_url")))
+    if kind == "travel":
+        return bool(entry.get("location") and description_len >= 140 and
+                    entry.get("travel_attractions") and entry.get("travel_best_season") and
+                    (entry.get("travel_budget_breakdown") or entry.get("travel_sample_itinerary") or
+                     (entry.get("travel_daily_budget_min") is not None and entry.get("travel_daily_budget_max") is not None)) and
+                    (entry.get("info_source_url") or entry.get("external_url")))
+    return True
 
 
 def _directory_create(kind):
@@ -3083,11 +3213,12 @@ def _directory_create(kind):
                 raise ValueError("Enter a valid contact email address.")
             if not rate_limit_allowed("directory_create", 8, 3600, identity=str(session["user_id"])):
                 raise ValueError("You have created several listings recently. Please try again later.")
+            extra_values = _directory_extra_form_values(kind)
+            insert_columns = ["entry_kind","owner_id","title","slug","category","summary","description","location","price_label","external_url","contact_email","image_url","event_starts_at","event_ends_at"] + list(extra_values)
+            insert_values = [kind,session["user_id"],title,slug,category,summary,description,location,price_label,external_url,contact_email,image_url,starts_at,ends_at] + list(extra_values.values())
+            placeholders = ",".join(["%s"] * len(insert_values))
             with db() as c:
-                row = c.execute("""INSERT INTO gw_directory_entries
-                    (entry_kind,owner_id,title,slug,category,summary,description,location,price_label,external_url,contact_email,image_url,event_starts_at,event_ends_at)
-                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING slug""",
-                    (kind,session["user_id"],title,slug,category,summary,description,location,price_label,external_url,contact_email,image_url,starts_at,ends_at)).fetchone()
+                row = c.execute(f"INSERT INTO gw_directory_entries ({','.join(insert_columns)}) VALUES({placeholders}) RETURNING slug", tuple(insert_values)).fetchone()
             flash(f"Your {config['singular']} is now listed. It is marked as community-submitted and not independently verified by Gather World.", "success")
             return redirect(url_for(config["detail_endpoint"], slug=row["slug"]))
         except ValueError as exc:
@@ -3122,9 +3253,141 @@ def _directory_detail(kind, slug):
             if viewer_id:
                 rsvp = c.execute("SELECT response FROM gw_directory_event_rsvps WHERE entry_id=%s AND user_id=%s", (entry["id"],viewer_id)).fetchone()
                 my_rsvp = rsvp["response"] if rsvp else None
+        reviews = []
+        review_count = 0
+        average_rating = None
+        my_review_status = None
+        if kind in ("food", "travel"):
+            stats = c.execute("""SELECT COUNT(*) AS review_count,AVG(rating)::NUMERIC(3,2) AS average_rating
+                FROM gw_directory_reviews WHERE entry_id=%s AND status='approved'""", (entry["id"],)).fetchone()
+            review_count = int(stats["review_count"] or 0)
+            average_rating = float(stats["average_rating"]) if stats["average_rating"] is not None else None
+            reviews = c.execute("""SELECT r.id,r.rating,r.headline,r.review_text,r.created_at,
+                u.username,u.display_name FROM gw_directory_reviews r JOIN gw_users u ON u.id=r.user_id
+                WHERE r.entry_id=%s AND r.status='approved' ORDER BY r.created_at DESC LIMIT 12""", (entry["id"],)).fetchall()
+            if viewer_id:
+                own_review = c.execute("SELECT status FROM gw_directory_reviews WHERE entry_id=%s AND user_id=%s", (entry["id"],viewer_id)).fetchone()
+                my_review_status = own_review["status"] if own_review else None
+
+    seo_indexable = _directory_is_search_ready(entry, kind)
+    entry["location_slug"] = _directory_slug(entry.get("location") or "")
+    page_url = f"{PUBLIC_BASE_URL}{request.path}"
+    location = (entry.get("location") or "").strip()
+    description_text = (entry.get("description") or entry.get("summary") or "").strip()
+    if kind == "food":
+        seo_title = (f"Is {entry['title']} Worth Visiting? Menu, Prices & Reviews in {location} | Gather World"
+                     if location else f"Is {entry['title']} Worth Visiting? Menu, Prices & Reviews | Gather World")
+        descriptor = entry.get("food_cuisine") or entry.get("category") or "food"
+        parts = [f"Explore {entry['title']} in {location}." if location else f"Explore {entry['title']}.",
+                 f"Cuisine: {descriptor}."]
+        if entry.get("food_average_cost") or entry.get("price_label"):
+            parts.append(f"Typical cost information: {entry.get('food_average_cost') or entry.get('price_label')}.")
+        if entry.get("food_menu_highlights"):
+            parts.append(f"Menu details: {entry['food_menu_highlights'][:100]}.")
+        seo_description = " ".join(parts)[:300]
+        structured_data = {
+            "@context": "https://schema.org",
+            "@type": {"Restaurant": "Restaurant", "Café": "CafeOrCoffeeShop", "Bakery": "Bakery",
+                       "Grocery": "GroceryStore", "Street Food": "FoodEstablishment", "Catering": "FoodEstablishment"}.get(entry.get("category"), "FoodEstablishment"),
+            "name": entry["title"],
+            "description": (entry.get("summary") or description_text)[:500],
+            "url": page_url,
+        }
+        if entry.get("image_url"):
+            structured_data["image"] = entry["image_url"]
+        if location:
+            structured_data["address"] = {"@type": "PostalAddress", "addressLocality": location}
+        if entry.get("contact_phone"):
+            structured_data["telephone"] = entry["contact_phone"]
+        if entry.get("food_cuisine"):
+            structured_data["servesCuisine"] = entry["food_cuisine"]
+        if entry.get("price_label") or entry.get("food_average_cost"):
+            structured_data["priceRange"] = entry.get("food_average_cost") or entry.get("price_label")
+        if entry.get("external_url"):
+            structured_data["menu"] = entry["external_url"]
+        if review_count:
+            structured_data["aggregateRating"] = {"@type": "AggregateRating", "ratingValue": average_rating,
+                                                   "reviewCount": review_count, "bestRating": 5, "worstRating": 1}
+            structured_data["review"] = [{"@type": "Review", "author": {"@type": "Person", "name": r["display_name"] or r["username"]},
+                "datePublished": r["created_at"].date().isoformat(), "reviewBody": r["review_text"],
+                "reviewRating": {"@type": "Rating", "ratingValue": r["rating"], "bestRating": 5, "worstRating": 1}}
+                for r in reviews[:5]]
+    elif kind == "travel":
+        seo_title = f"{entry['title']} Travel Guide: Costs, Attractions & Best Time | Gather World"
+        parts = [f"Plan a visit to {entry['title']} in {location}." if location else f"Explore the {entry['title']} travel guide."]
+        if entry.get("travel_best_season"):
+            parts.append(f"Best time to visit: {entry['travel_best_season']}.")
+        if entry.get("travel_daily_budget_min") is not None and entry.get("travel_daily_budget_max") is not None:
+            parts.append(f"Estimated daily budget: {entry['travel_budget_currency']} {entry['travel_daily_budget_min']}–{entry['travel_daily_budget_max']} per person.")
+        if entry.get("travel_attractions"):
+            parts.append(f"Places to explore: {entry['travel_attractions'][:110]}.")
+        seo_description = " ".join(parts)[:300]
+        travel_schema_type = {"Destination": "TouristDestination", "Hotel & Stay": "Hotel",
+                              "Activity": "TouristAttraction", "Tour Operator": "TravelAgency"}.get(entry.get("category"), "Place")
+        structured_data = {"@context": "https://schema.org", "@type": travel_schema_type, "name": entry["title"],
+                           "description": (entry.get("summary") or description_text)[:500], "url": page_url}
+        if location:
+            structured_data["containedInPlace"] = {"@type": "Place", "name": location}
+        if entry.get("image_url"):
+            structured_data["image"] = entry["image_url"]
+    else:
+        seo_title = f"{entry['title']} · Gather World"
+        seo_description = (entry.get("summary") or description_text)[:300]
+        structured_data = None
+
     return render_template("directory_detail.html", module=DIRECTORY_MODULES[kind], entry=entry, kind=kind,
                            going_count=going_count, interested_count=interested_count, my_rsvp=my_rsvp,
-                           is_owner=bool(viewer_id and int(viewer_id)==int(entry["owner_id"])))
+                           is_owner=bool(viewer_id and int(viewer_id)==int(entry["owner_id"])),
+                           reviews=reviews, review_count=review_count, average_rating=average_rating,
+                           my_review_status=my_review_status, seo_indexable=seo_indexable,
+                           seo_title=seo_title, seo_description=seo_description,
+                           structured_data=structured_data)
+
+
+def _directory_review_submit(kind, slug):
+    with db() as c:
+        entry = c.execute("SELECT id,owner_id,title FROM gw_directory_entries WHERE entry_kind=%s AND slug=%s AND is_active=TRUE", (kind,slug)).fetchone()
+    if not entry:
+        abort(404)
+    if int(entry["owner_id"]) == int(session["user_id"]):
+        flash("You cannot review your own listing.", "error")
+        return redirect(url_for("food_detail" if kind == "food" else "travel_detail", slug=slug))
+    rating = request.form.get("rating", type=int)
+    headline = request.form.get("headline", "").strip()[:120]
+    review_text = request.form.get("review_text", "").strip()[:2000]
+    if rating not in (1,2,3,4,5) or len(review_text) < 30:
+        flash("Choose a rating and write at least 30 characters about your experience.", "error")
+        return redirect(url_for("food_detail" if kind == "food" else "travel_detail", slug=slug) + "#community-reviews")
+    if not rate_limit_allowed("directory_review", 3, 86400, identity=str(session["user_id"])):
+        flash("You have submitted several reviews today. Please try again tomorrow.", "error")
+        return redirect(url_for("food_detail" if kind == "food" else "travel_detail", slug=slug) + "#community-reviews")
+    with db() as c:
+        c.execute("""INSERT INTO gw_directory_reviews(entry_id,user_id,rating,headline,review_text,status)
+            VALUES(%s,%s,%s,%s,%s,'pending')
+            ON CONFLICT(entry_id,user_id) DO UPDATE SET rating=EXCLUDED.rating,headline=EXCLUDED.headline,
+                review_text=EXCLUDED.review_text,status='pending',updated_at=NOW()""",
+            (entry["id"],session["user_id"],rating,headline,review_text))
+    flash("Thank you. Your review is pending moderation and will appear after approval.", "success")
+    return redirect(url_for("food_detail" if kind == "food" else "travel_detail", slug=slug) + "#community-reviews")
+
+
+@app.route("/admin/directory-reviews", methods=["GET", "POST"])
+@admin_required
+def admin_directory_reviews():
+    if request.method == "POST":
+        review_id = request.form.get("review_id", type=int)
+        action = request.form.get("action", "reject")
+        status = "approved" if action == "approve" else "rejected"
+        with db() as c:
+            c.execute("UPDATE gw_directory_reviews SET status=%s,updated_at=NOW() WHERE id=%s", (status,review_id))
+        flash("Review moderation saved.", "success")
+        return redirect(url_for("admin_directory_reviews"))
+    with db() as c:
+        reviews = c.execute("""SELECT r.*,e.entry_kind,e.title AS entry_title,e.slug,
+            u.username,u.display_name FROM gw_directory_reviews r
+            JOIN gw_directory_entries e ON e.id=r.entry_id JOIN gw_users u ON u.id=r.user_id
+            ORDER BY CASE WHEN r.status='pending' THEN 0 ELSE 1 END,r.created_at DESC LIMIT 250""").fetchall()
+    return render_template("admin_directory_reviews.html", reviews=reviews)
 
 
 def _service_contact(slug):
@@ -3188,6 +3451,44 @@ def service_detail(slug):
 def service_contact(slug):
     return _service_contact(slug)
 
+def _directory_location_page(kind, location_slug):
+    location_slug = _directory_slug(location_slug)
+    if len(location_slug) < 2:
+        abort(404)
+    pattern = f"%{location_slug}%"
+    with db() as c:
+        entries = c.execute("""SELECT e.*,u.username AS owner_username,u.display_name AS owner_display_name
+            FROM gw_directory_entries e JOIN gw_users u ON u.id=e.owner_id
+            WHERE e.entry_kind=%s AND e.is_active=TRUE AND u.is_suspended=FALSE
+              AND regexp_replace(lower(e.location), '[^a-z0-9]+', '-', 'g') ILIKE %s
+            ORDER BY e.is_featured DESC,e.updated_at DESC LIMIT 100""",
+            (kind,pattern)).fetchall()
+    if not entries:
+        abort(404)
+    ready_entries = [entry for entry in entries if _directory_is_search_ready(entry, kind)]
+    location_label = entries[0].get("location") or location_slug.replace("-", " ").title()
+    if kind == "food":
+        seo_title = f"Restaurants and Local Food in {location_label} | Gather World"
+        seo_description = f"Explore restaurant information in {location_label}: cuisine, menu details, typical spend, opening hours and community feedback where available. Confirm details with providers."
+    else:
+        seo_title = f"Travel Guides and Destinations in {location_label} | Gather World"
+        seo_description = f"Explore travel guides for {location_label}, including attractions, best seasons, access information and per-person budget estimates where contributors have supplied them."
+    return render_template("directory_location.html", kind=kind, module=DIRECTORY_MODULES[kind],
+        entries=entries, location_label=location_label, seo_title=seo_title,
+        seo_description=seo_description, seo_indexable=len(ready_entries) >= 2,
+        ready_count=len(ready_entries), location_slug=location_slug)
+
+
+@app.route("/food/in/<location_slug>")
+def food_location_page(location_slug):
+    return _directory_location_page("food", location_slug)
+
+
+@app.route("/travel/in/<location_slug>")
+def travel_location_page(location_slug):
+    return _directory_location_page("travel", location_slug)
+
+
 @app.route("/food")
 def food_directory():
     return _directory_list("food")
@@ -3200,6 +3501,16 @@ def food_create():
 @app.route("/food/<slug>")
 def food_detail(slug):
     return _directory_detail("food",slug)
+
+@app.post("/food/<slug>/review")
+@required
+def food_review_submit(slug):
+    return _directory_review_submit("food", slug)
+
+@app.post("/travel/<slug>/review")
+@required
+def travel_review_submit(slug):
+    return _directory_review_submit("travel", slug)
 
 @app.route("/travel")
 def travel_directory():
@@ -3318,13 +3629,13 @@ def directory_listing_edit(entry_id):
                 raise ValueError("Choose a valid category.")
             if contact_email and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", contact_email):
                 raise ValueError("Enter a valid contact email address.")
+            extra_values = _directory_extra_form_values(kind)
+            assignments = ["title=%s","category=%s","summary=%s","description=%s","location=%s","price_label=%s",
+                "external_url=%s","contact_email=%s","image_url=%s","event_starts_at=%s","event_ends_at=%s"]
+            assignments.extend(f"{column}=%s" for column in extra_values)
+            update_values = [title,category,summary,description,location,price_label,external_url,contact_email,image_url,starts_at,ends_at] + list(extra_values.values()) + [entry_id,session["user_id"]]
             with db() as c:
-                c.execute("""UPDATE gw_directory_entries SET title=%s,category=%s,summary=%s,description=%s,
-                    location=%s,price_label=%s,external_url=%s,contact_email=%s,image_url=%s,
-                    event_starts_at=%s,event_ends_at=%s,updated_at=NOW()
-                    WHERE id=%s AND owner_id=%s""",
-                    (title,category,summary,description,location,price_label,external_url,contact_email,image_url,
-                     starts_at,ends_at,entry_id,session["user_id"]))
+                c.execute(f"UPDATE gw_directory_entries SET {','.join(assignments)},updated_at=NOW() WHERE id=%s AND owner_id=%s", tuple(update_values))
             flash("Your listing has been updated.", "success")
             return redirect(url_for(config["detail_endpoint"], slug=entry["slug"]))
         except (ValueError, TypeError) as exc:

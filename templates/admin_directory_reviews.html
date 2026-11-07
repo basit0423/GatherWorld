@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Food & Travel Review Moderation · Gather World{% endblock %}
+{% block meta_robots %}noindex,follow{% endblock %}
+{% block content %}
+<section class="gw-directory-page">
+  <header class="gw-directory-section-heading"><div><span class="section-kicker">ADMINISTRATION</span><h1>Food &amp; Travel reviews</h1><p>Only approve reviews that describe a genuine experience, stay relevant and do not contain personal information or abuse.</p></div><a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">← Admin dashboard</a></header>
+  <div class="gw-admin-listings">
+    {% for review in reviews %}
+      <article class="gw-admin-listing">
+        <div><span class="gw-listing-type">{{ review.entry_kind|title }} · {{ review.entry_title }} · {{ review.status|title }}</span><h3>{{ review.rating }}/5 — {{ review.headline or 'Member review' }}</h3><p>{{ review.review_text }}</p><small>By @{{ review.username }} · {{ review.created_at.strftime('%d %b %Y') }} · <a href="{{ url_for('food_detail' if review.entry_kind=='food' else 'travel_detail',slug=review.slug) }}">Open listing</a></small></div>
+        <form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="review_id" value="{{ review.id }}"><button class="btn" name="action" value="approve" type="submit">Approve</button><button class="btn btn-secondary" name="action" value="reject" type="submit">Reject</button></form>
+      </article>
+    {% else %}<div class="gw-directory-empty"><h2>No reviews submitted yet</h2></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,20 +1,71 @@
 {% extends "base.html" %}
-{% block title %}{{ entry.title }} · Gather World{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block meta_robots %}{{ 'index,follow' if seo_indexable else 'noindex,follow' }}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block structured_data %}{% if structured_data %}<script type="application/ld+json">{{ structured_data|tojson }}</script>{% endif %}{% endblock %}
 {% block content %}
-<section class="gw-directory-page">
-  <a class="gw-back-link" href="{{ url_for(module.directory_endpoint) }}">← Back to {{ module.title }}</a>
+<section class="gw-directory-page gw-directory-detail-page">
+  <nav class="gw-breadcrumbs" aria-label="Breadcrumb"><a href="{{ url_for('home') }}">Home</a><span>›</span><a href="{{ url_for(module.directory_endpoint) }}">{{ module.title }}</a><span>›</span><span aria-current="page">{{ entry.title }}</span></nav>
+  {% if not seo_indexable and kind in ('food','travel') %}<div class="gw-seo-readiness-note">This page is visible to visitors but is not yet being offered for search indexing because some useful details are missing. Add more factual information to make it more helpful.</div>{% endif %}
   <article class="gw-directory-detail">
     <div class="gw-directory-detail-media">
       {% if entry.image_url %}<img src="{{ entry.image_url }}" alt="{{ entry.title }}" decoding="async">{% else %}<span class="gw-directory-detail-initial">{{ entry.title[:1]|upper }}</span>{% endif %}
       <span class="gw-directory-kind">{{ module.kind_label }} · Community submitted</span>
     </div>
     <div class="gw-directory-detail-content">
-      <div class="gw-directory-card-meta"><span>{{ entry.category }}</span>{% if entry.location %}<span>{{ entry.location }}</span>{% endif %}</div>
+      <div class="gw-directory-card-meta"><span>{{ entry.category }}</span>{% if entry.location %}{% if kind=='food' and entry.location_slug %}<a href="{{ url_for('food_location_page',location_slug=entry.location_slug) }}">{{ entry.location }}</a>{% elif kind=='travel' and entry.location_slug %}<a href="{{ url_for('travel_location_page',location_slug=entry.location_slug) }}">{{ entry.location }}</a>{% else %}<span>{{ entry.location }}</span>{% endif %}{% endif %}</div>
       <h1>{{ entry.title }}</h1>
       {% if entry.summary %}<p class="gw-directory-lead">{{ entry.summary }}</p>{% endif %}
+      {% if kind=='food' and review_count %}<div class="gw-rating-summary"><strong>★ {{ '%.1f'|format(average_rating) }}/5</strong><span>{{ review_count }} approved community review{{ '' if review_count==1 else 's' }}</span></div>{% endif %}
       {% if entry.price_label %}<div class="gw-directory-price">{{ entry.price_label }}</div>{% endif %}
       <div class="gw-directory-description">{{ entry.description or 'More information has not been added yet.' }}</div>
-      {% if kind=='event' and entry.event_starts_at %}
+      {% if kind=='food' %}
+        <section class="gw-detail-info-section"><span class="section-kicker">RESTAURANT INFORMATION</span><h2>What to know before you visit</h2>
+          <div class="gw-fact-grid">
+            {% if entry.food_cuisine %}<div><small>Cuisine / food style</small><strong>{{ entry.food_cuisine }}</strong></div>{% endif %}
+            {% if entry.food_average_cost or entry.price_label %}<div><small>Typical spend information</small><strong>{{ entry.food_average_cost or entry.price_label }}</strong></div>{% endif %}
+            {% if entry.location %}<div><small>Location</small><strong>{{ entry.location }}</strong></div>{% endif %}
+            {% if entry.food_opening_hours %}<div><small>Opening hours</small><strong class="gw-preline">{{ entry.food_opening_hours }}</strong></div>{% endif %}
+            {% if entry.contact_phone %}<div><small>Contact phone</small><strong>{{ entry.contact_phone }}</strong></div>{% endif %}
+          </div>
+        </section>
+        {% if entry.food_menu_highlights %}<section class="gw-detail-info-section"><h2>Menu highlights</h2><p class="gw-preline">{{ entry.food_menu_highlights }}</p></section>{% endif %}
+        {% if entry.food_good_for %}<section class="gw-detail-info-section"><h2>Who might enjoy this place?</h2><p class="gw-preline">{{ entry.food_good_for }}</p></section>{% endif %}
+        {% if entry.food_dietary_notes %}<section class="gw-detail-info-section"><h2>Dietary, allergy and access notes</h2><p class="gw-preline">{{ entry.food_dietary_notes }}</p><p class="gw-small-note">Always confirm ingredients, cross-contact and current arrangements directly with the restaurant.</p></section>{% endif %}
+        <section class="gw-detail-info-section gw-restaurant-verdict"><span class="section-kicker">COMMUNITY FEEDBACK SNAPSHOT</span><h2>Is {{ entry.title }} worth considering?</h2>
+          {% if review_count >= 3 %}<p>Gather World members have given this place an average of <strong>{{ '%.1f'|format(average_rating) }}/5</strong> across {{ review_count }} approved review{{ '' if review_count==1 else 's' }}. This reflects the reviews currently published here; it is not a guarantee that every visit will be the same.</p>
+          {% elif review_count > 0 %}<p>There {{ 'is' if review_count==1 else 'are' }} {{ review_count }} approved community review{{ '' if review_count==1 else 's' }} so far. That is limited feedback, so it is too early to draw a reliable overall conclusion.</p>
+          {% else %}<p>There are no approved community reviews yet, so Gather World cannot currently assess visitor satisfaction for this place. Check the menu and details below, and share an honest review after your own experience.</p>{% endif %}
+          <p>To decide whether it suits you, compare the menu and prices with your preferences, check current opening hours, and confirm dietary, allergy, accessibility and group arrangements directly with the restaurant.</p>
+        </section>
+      {% elif kind=='travel' %}
+        <section class="gw-detail-info-section"><span class="section-kicker">DESTINATION GUIDE</span><h2>Plan your visit</h2>
+          <div class="gw-fact-grid">
+            {% if entry.travel_best_season %}<div><small>Best time / season</small><strong>{{ entry.travel_best_season }}</strong></div>{% endif %}
+            {% if entry.travel_duration_days %}<div><small>Suggested trip duration</small><strong>{{ entry.travel_duration_days }} day{{ '' if entry.travel_duration_days==1 else 's' }}</strong></div>{% endif %}
+            {% if entry.location %}<div><small>Destination / region</small><strong>{{ entry.location }}</strong></div>{% endif %}
+          </div>
+        </section>
+        {% if entry.travel_attractions %}<section class="gw-detail-info-section"><h2>Places to explore and things to do</h2><p class="gw-preline">{{ entry.travel_attractions }}</p></section>{% endif %}
+        {% if entry.travel_how_to_get_there %}<section class="gw-detail-info-section"><h2>How to get there</h2><p class="gw-preline">{{ entry.travel_how_to_get_there }}</p></section>{% endif %}
+        {% if entry.travel_daily_budget_min is not none and entry.travel_daily_budget_max is not none %}
+          <section class="gw-travel-budget"><span class="section-kicker">PLANNING ESTIMATE · PER PERSON / DAY</span><h2>How much could a trip cost?</h2><div class="gw-budget-range">{{ entry.travel_budget_currency }} {{ '{:,}'.format(entry.travel_daily_budget_min) }} – {{ '{:,}'.format(entry.travel_daily_budget_max) }} <small>per person, per day</small></div>
+          <div class="gw-budget-calculator" data-budget-min="{{ entry.travel_daily_budget_min }}" data-budget-max="{{ entry.travel_daily_budget_max }}" data-budget-currency="{{ entry.travel_budget_currency }}">
+            <label>Trip length (days)<input id="gw-budget-days" type="number" min="1" max="365" value="{{ entry.travel_duration_days or 1 }}"></label>
+            <label>Number of travellers<input id="gw-budget-people" type="number" min="1" max="50" value="1"></label>
+            <div class="gw-budget-result" aria-live="polite"><small>Estimated total for your group</small><strong id="gw-budget-total">{{ entry.travel_budget_currency }} {{ '{:,}'.format(entry.travel_daily_budget_min * (entry.travel_duration_days or 1)) }} – {{ '{:,}'.format(entry.travel_daily_budget_max * (entry.travel_duration_days or 1)) }}</strong><span id="gw-budget-per-person">Per person: {{ entry.travel_budget_currency }} {{ '{:,}'.format(entry.travel_daily_budget_min * (entry.travel_duration_days or 1)) }} – {{ '{:,}'.format(entry.travel_daily_budget_max * (entry.travel_duration_days or 1)) }}</span></div>
+          </div>
+          <p class="gw-small-note">This calculator multiplies the submitted daily estimate by trip length and group size. It is not a live quote. Check whether transport to the destination, accommodation, meals, entry fees, taxes and optional activities are included.</p></section>
+        {% endif %}
+        {% if entry.travel_budget_breakdown %}<section class="gw-detail-info-section"><h2>Where the budget may go</h2><p class="gw-preline">{{ entry.travel_budget_breakdown }}</p></section>{% endif %}
+        {% if entry.travel_sample_itinerary %}<section class="gw-detail-info-section"><h2>Suggested itinerary</h2><p class="gw-preline">{{ entry.travel_sample_itinerary }}</p></section>{% endif %}
+        {% if entry.travel_local_tips %}<section class="gw-detail-info-section"><h2>Local tips</h2><p class="gw-preline">{{ entry.travel_local_tips }}</p></section>{% endif %}
+        {% if entry.travel_safety_notes %}<section class="gw-detail-info-section"><h2>Safety, access and seasonal notes</h2><p class="gw-preline">{{ entry.travel_safety_notes }}</p></section>{% endif %}
+        <section class="gw-detail-info-section"><h2>Before you travel</h2><ul class="gw-detail-checklist"><li>Recheck weather, road access, local advisories and attraction opening times.</li><li>Confirm accommodation, transport and activity prices for your exact dates.</li><li>Check whether permits, advance reservations or special access arrangements apply.</li><li>Keep a contingency allowance and share your itinerary with someone you trust.</li></ul></section>
+      {% elif kind=='event' and entry.event_starts_at %}
         <div class="gw-directory-event-panel"><strong>Event schedule</strong><span>Starts: {{ entry.event_starts_at.strftime('%d %b %Y · %H:%M UTC') }}</span>{% if entry.event_ends_at %}<span>Ends: {{ entry.event_ends_at.strftime('%d %b %Y · %H:%M UTC') }}</span>{% endif %}<span>{{ going_count }} going · {{ interested_count }} interested</span></div>
         {% if current_user %}<form method="post" action="{{ url_for('event_rsvp',slug=entry.slug) }}" class="gw-directory-rsvp"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="btn" name="response" value="going" type="submit">{{ '✓ Going' if my_rsvp=='going' else 'I’m going' }}</button><button class="btn btn-secondary" name="response" value="interested" type="submit">{{ '✓ Interested' if my_rsvp=='interested' else 'Interested' }}</button>{% if my_rsvp %}<button class="gw-text-link" name="response" value="none" type="submit">Remove response</button>{% endif %}</form>{% else %}<a class="btn" href="{{ url_for('login') }}">Sign in to RSVP</a>{% endif %}
       {% elif kind=='service' and current_user and not is_owner %}
@@ -23,11 +74,59 @@
       <div class="gw-directory-detail-actions">
         {% if entry.external_url %}<a class="btn" href="{{ entry.external_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ module.action_label }} ↗</a>{% endif %}
         {% if entry.contact_email %}<a class="btn btn-secondary" href="mailto:{{ entry.contact_email }}">Contact by email</a>{% endif %}
+        {% if entry.contact_phone %}<a class="btn btn-secondary" href="tel:{{ entry.contact_phone }}">Call provider</a>{% endif %}
         {% if is_owner %}<a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">Manage my listings</a><a class="btn btn-secondary" href="{{ url_for('directory_listing_edit',entry_id=entry.id) }}">Edit this listing</a>{% if kind=='service' %}<a class="btn btn-secondary" href="{{ url_for('service_inquiries',slug=entry.slug) }}">View inquiries</a>{% endif %}{% endif %}
       </div>
-      <div class="gw-directory-owner"><span>Shared by</span><strong>{{ entry.owner_display_name }}</strong><a href="{{ url_for('public_profile',username=entry.owner_username) }}">@{{ entry.owner_username }}</a></div>
-      <p class="gw-directory-disclaimer">This is a community-submitted listing and has not been independently verified by Gather World. Confirm all details directly with the provider. Any external website has its own terms, prices and policies.</p>
+      {% if kind in ('food','travel') and entry.info_source_url %}<p class="gw-source-line">Information source: <a href="{{ entry.info_source_url }}" target="_blank" rel="noopener noreferrer">Open reference ↗</a></p>{% endif %}
+      <div class="gw-directory-owner"><span>Shared by</span><strong>{{ entry.owner_display_name }}</strong><a href="{{ url_for('public_profile',username=entry.owner_username) }}">@{{ entry.owner_username }}</a><span>· Updated {{ entry.updated_at.strftime('%d %b %Y') if entry.updated_at else entry.created_at.strftime('%d %b %Y') }}</span></div>
+      <p class="gw-directory-disclaimer">Community-submitted information is not independently verified by Gather World unless explicitly stated. Menus, hours, prices, routes, conditions and availability can change. Check important details with the provider or official source before relying on them.</p>
     </div>
   </article>
+
+  {% if kind in ('food','travel') %}
+  <section class="gw-review-section" id="community-reviews">
+    <div class="gw-directory-section-heading"><div><span class="section-kicker">MEMBER EXPERIENCES</span><h2>Community reviews</h2><p>Reviews are member-submitted and moderated. They are not presented as independently verified visits.</p></div>{% if review_count %}<div class="gw-rating-large">★ {{ '%.1f'|format(average_rating) }}<small>{{ review_count }} approved review{{ '' if review_count==1 else 's' }}</small></div>{% endif %}</div>
+    {% if reviews %}<div class="gw-review-grid">{% for review in reviews %}<article class="gw-review-card"><div class="gw-review-rating">{{ '★' * review.rating }}{{ '☆' * (5-review.rating) }} <span>{{ review.rating }}/5</span></div>{% if review.headline %}<h3>{{ review.headline }}</h3>{% endif %}<p>{{ review.review_text }}</p><small>{{ review.display_name }} · {{ review.created_at.strftime('%d %b %Y') }}</small></article>{% endfor %}</div>{% else %}<div class="gw-directory-empty gw-review-empty"><h3>No approved community reviews yet</h3><p>There is not enough member feedback to provide a community rating. Be the first to share a useful, honest experience.</p></div>{% endif %}
+    {% if current_user and not is_owner %}
+      {% if my_review_status=='pending' %}<p class="gw-review-status">Your latest review is awaiting moderation.</p>{% elif my_review_status=='rejected' %}<p class="gw-review-status">Your previous review was not published. You may submit an updated review.</p>{% endif %}
+      <form method="post" action="{{ url_for('food_review_submit' if kind=='food' else 'travel_review_submit',slug=entry.slug) }}" class="gw-review-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><h3>Share your experience</h3>
+        <label>Rating <select name="rating" required><option value="">Choose a rating</option><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Below expectations</option><option value="1">1 — Poor</option></select></label>
+        <label>Review title (optional)<input name="headline" maxlength="120" placeholder="What should other visitors know?"></label>
+        <label>Your review <textarea name="review_text" rows="5" minlength="30" maxlength="2000" required placeholder="Describe your experience with specific, fair and helpful details. Do not include private information."></textarea></label>
+        <button class="btn" type="submit">Submit review for moderation</button>
+      </form>
+    {% elif not current_user %}<p class="gw-review-login"><a href="{{ url_for('login') }}">Log in</a> to share a review. Reviews are moderated before publication.</p>{% endif %}
+  </section>
+  {% endif %}
 </section>
+{% if kind=='travel' and entry.travel_daily_budget_min is not none and entry.travel_daily_budget_max is not none %}
+<script>
+(function () {
+  const box = document.querySelector('.gw-budget-calculator');
+  if (!box) return;
+  const min = Number(box.dataset.budgetMin);
+  const max = Number(box.dataset.budgetMax);
+  const currency = box.dataset.budgetCurrency || 'PKR';
+  const daysInput = document.getElementById('gw-budget-days');
+  const peopleInput = document.getElementById('gw-budget-people');
+  const total = document.getElementById('gw-budget-total');
+  const perPerson = document.getElementById('gw-budget-per-person');
+  const format = value => `${currency} ${Math.round(value).toLocaleString()}`;
+  function update() {
+    const days = Math.max(1, Math.min(365, Number(daysInput.value) || 1));
+    const people = Math.max(1, Math.min(50, Number(peopleInput.value) || 1));
+    daysInput.value = days;
+    peopleInput.value = people;
+    const low = min * days;
+    const high = max * days;
+    total.textContent = `${format(low * people)} – ${format(high * people)}`;
+    perPerson.textContent = `Per person: ${format(low)} – ${format(high)}`;
+  }
+  daysInput.addEventListener('input', update);
+  peopleInput.addEventListener('input', update);
+  update();
+})();
+</script>
+{% endif %}
 {% endblock %}

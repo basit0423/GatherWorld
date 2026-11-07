@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#111827" id="gather-theme-color">
     <meta name="color-scheme" content="dark light">
-    <meta name="description" content="Gather World — connect, share ideas and discover communities.">
+    <meta name="description" content="{% block meta_description %}Gather World — discover restaurants, destinations, communities, services and useful ideas.{% endblock %}">
+    <meta name="robots" content="{% block meta_robots %}index,follow{% endblock %}">
     <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:site_name" content="Gather World">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:title" content="{% block og_title %}Gather World{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Discover restaurants, destinations, communities and useful ideas on Gather World.{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <script>
   (function () {
     try {
@@ -21,7 +27,8 @@
   })();
 </script>
     <title>{% block title %}Gather World{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=phase12-17">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=food-travel-search-1">
+    {% block structured_data %}{% endblock %}
 </head>
 <body class="{% block body_class %}site-page{% endblock %}">
 <a class="skip-link" href="#main-content">Skip to content</a>
@@ -106,6 +113,7 @@
             <a href="{{ url_for('admin_affiliate_partners') }}">Affiliate partners</a>
             <a href="{{ url_for('admin_shop_products') }}">Shop products</a>
             <a href="{{ url_for('admin_directory_listings') }}">Directory moderation</a>
+            <a href="{{ url_for('admin_directory_reviews') }}">Food &amp; travel reviews</a>
           {% endif %}
         {% else %}
           <a href="{{ url_for('login') }}">Log in</a>

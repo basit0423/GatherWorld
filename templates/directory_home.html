@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-{% block title %}{{ module.title }} · Gather World{% endblock %}
+{% block title %}{{ 'Restaurants, Cafés & Local Food' if kind=='food' else 'Travel Guides, Destinations & Trip Planning' if kind=='travel' else module.title }} | Gather World{% endblock %}
+{% block meta_description %}{{ 'Explore restaurant information, cuisines, menus, price ranges and community reviews. Compare details and decide what to check before visiting.' if kind=='food' else 'Explore destination guides, attractions, best times to visit, trip planning tips and realistic per-person budget estimates.' if kind=='travel' else module.intro }}{% endblock %}
+{% block meta_robots %}{{ 'noindex,follow' if q or selected_category else 'index,follow' }}{% endblock %}
+{% block og_title %}{{ module.title }} | Gather World{% endblock %}
+{% block og_description %}{{ module.intro }}{% endblock %}
 {% block content %}
 <section class="gw-directory-page">
   <header class="gw-directory-hero">
@@ -7,6 +11,7 @@
       <span class="section-kicker">GATHER WORLD · PHASE {{ {'service':'12','food':'13','travel':'14','education':'15','job':'16','event':'17'}[kind] }}</span>
       <h1>{{ module.title }}</h1>
       <p>{{ module.intro }}</p>
+      {% if kind=='food' %}<p class="gw-directory-hero-extra">Research a place before you go: cuisine, menu highlights, typical spend, opening hours and moderated community reviews—where available.</p>{% elif kind=='travel' %}<p class="gw-directory-hero-extra">Plan beyond the destination name: attractions, best season, transport, sample itineraries and per-person budget estimates—where supplied.</p>{% endif %}
       <div class="gw-directory-hero-actions">
         {% if current_user %}<a class="btn" href="{{ url_for(module.create_endpoint) }}">＋ {{ module.create_title }}</a>{% else %}<a class="btn" href="{{ url_for('login') }}">Sign in to add a listing</a>{% endif %}
         {% if current_user %}<a class="btn btn-secondary" href="{{ url_for('my_directory_listings') }}">My listings</a>{% endif %}
@@ -18,7 +23,7 @@
   <section class="gw-directory-toolbar">
     <form method="get" action="{{ url_for(module.directory_endpoint) }}" class="gw-directory-search">
       <label class="visually-hidden" for="directory-search">Search {{ module.plural }}</label>
-      <input id="directory-search" type="search" name="q" value="{{ q }}" placeholder="Search {{ module.plural }}…">
+      <input id="directory-search" type="search" name="q" value="{{ q }}" placeholder="{{ 'Search restaurant, cuisine or city…' if kind=='food' else 'Search destination, attraction or region…' if kind=='travel' else 'Search ' ~ module.plural ~ '…' }}">
       <select name="category" aria-label="Filter category"><option value="">All categories</option>{% for item in module.categories %}<option value="{{ item }}" {% if selected_category==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
       <button class="btn" type="submit">Search</button>
     </form>
@@ -34,7 +39,7 @@
         <span class="gw-directory-kind">{{ module.kind_label }}</span>
       </a>
       <div class="gw-directory-card-body">
-        <div class="gw-directory-card-meta"><span>{{ entry.category }}</span>{% if entry.location %}<span>{{ entry.location }}</span>{% endif %}</div>
+        <div class="gw-directory-card-meta"><span>{{ entry.category }}</span>{% if entry.location %}{% if kind=='food' and entry.location_slug %}<a href="{{ url_for('food_location_page',location_slug=entry.location_slug) }}">{{ entry.location }}</a>{% elif kind=='travel' and entry.location_slug %}<a href="{{ url_for('travel_location_page',location_slug=entry.location_slug) }}">{{ entry.location }}</a>{% else %}<span>{{ entry.location }}</span>{% endif %}{% endif %}</div>
         <h3><a href="{{ url_for(module.detail_endpoint, slug=entry.slug) }}">{{ entry.title }}</a></h3>
         <p>{{ entry.summary or entry.description[:150] }}</p>
         <div class="gw-directory-card-bottom">
@@ -49,6 +54,29 @@
   {% else %}
   <section class="gw-directory-empty"><span class="gw-directory-empty-icon">✧</span><h2>No listings yet</h2><p>Be among the first to share something useful with the Gather World community.</p>{% if current_user %}<a class="btn" href="{{ url_for(module.create_endpoint) }}">Add the first listing</a>{% endif %}</section>
   {% endif %}
-  <p class="gw-directory-disclaimer">Community listings are submitted by users and are not independently verified by Gather World. Check providers, terms, availability and prices before relying on a listing.</p>
+  {% if kind=='food' %}
+  <section class="gw-search-guide" aria-labelledby="food-search-guide">
+    <span class="section-kicker">MAKE AN INFORMED CHOICE</span>
+    <h2 id="food-search-guide">How to decide whether a restaurant is worth visiting</h2>
+    <p>Look beyond a star score. Compare the cuisine, menu highlights, typical cost, opening hours, location and the experiences described in community reviews. Check when the information was last updated and confirm today's menu, prices and availability with the restaurant before travelling.</p>
+    <div class="gw-search-guide-grid">
+      <article><h3>What should I check?</h3><p>Menu and portion information, published prices, dietary and allergen details, opening hours, contact information and the restaurant's own menu or website.</p></article>
+      <article><h3>How do community reviews help?</h3><p>Read several approved reviews, pay attention to their dates and details, and consider whether their priorities match yours. A small number of reviews is not a guarantee of quality.</p></article>
+      <article><h3>Why compare more than one place?</h3><p>Comparing cuisine, location, budget and facilities helps you find a restaurant that matches the occasion and your needs.</p></article>
+    </div>
+  </section>
+  {% elif kind=='travel' %}
+  <section class="gw-search-guide" aria-labelledby="travel-search-guide">
+    <span class="section-kicker">PLAN WITH BETTER INFORMATION</span>
+    <h2 id="travel-search-guide">How to estimate the cost of a trip</h2>
+    <p>A useful trip estimate separates transport, accommodation, food, local travel and activities. Gather destination pages show per-person daily budget ranges and sample breakdowns when contributors provide them. Treat estimates as planning guides, not live quotations.</p>
+    <div class="gw-search-guide-grid">
+      <article><h3>What should a destination guide explain?</h3><p>Where the place is, why people visit, its main attractions, best season, access routes, local facilities and practical visitor advice.</p></article>
+      <article><h3>How should I compare budgets?</h3><p>Compare the same trip length and travel style. Check whether transport to the destination, accommodation, meals, entry fees and local transfers are included.</p></article>
+      <article><h3>Why check dates and sources?</h3><p>Weather, road access, fares, room rates and attraction schedules change. Confirm current conditions with official providers before making plans.</p></article>
+    </div>
+  </section>
+  {% endif %}
+  <p class="gw-directory-disclaimer">Community listings and reviews are submitted by members. Gather World labels information by its source and review status; details, prices and availability can change. Confirm important information with the provider or relevant official source.</p>
 </section>
 {% endblock %}
